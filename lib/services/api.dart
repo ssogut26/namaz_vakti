@@ -79,7 +79,7 @@ class ApiService extends Api {
       ),
     );
     final prayerTimes = PrayerTimesModel.fromJson(
-      jsonDecode(request.body) as Map<String, dynamic>,
+      json.decode(request.body) as Map<String, dynamic>,
     );
     return prayerTimes;
   }

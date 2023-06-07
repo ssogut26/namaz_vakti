@@ -17,6 +17,7 @@ dependencies:
   country_state_city_picker: ^1.2.8
   json_serializable: ^6.7.0
   flutter_riverpod: ^2.3.6
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets: 
+      - assets/
+
