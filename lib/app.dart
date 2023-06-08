@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namaz_vakti/screens/location_selection.dart';
+import 'package:namaz_vakti/screens/testa.dart';
 
 class NamazVaktiApp extends StatelessWidget {
   const NamazVaktiApp({super.key});
@@ -11,7 +11,7 @@ class NamazVaktiApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const LocationSelectionScreen(),
+      home: const NewMoonSlider(),
     );
   }
 }
