@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:namaz_vakti/models/countries.dart';
 import 'package:namaz_vakti/services/api.dart';
+import 'package:rive/rive.dart';
 
 class LocationNotifier extends ChangeNotifier {
   String? _country;
@@ -67,19 +68,19 @@ final getPrayerTimes = FutureProvider((ref) async {
   final country = ref.watch(locationProvider).country;
   final city = ref.watch(locationProvider).city;
   final district = ref.watch(locationProvider).district;
-  if (country != null && city != null && district != null) {
-    final prayerTimes = await ApiService.instance.getPrayerTimes(
-      country,
-      city,
-      district,
-      DateFormat('yMMMMd').format(DateTime.now()),
-    );
-    return prayerTimes;
-  } else if (country == '' && city == '' && district == '') {
-    return null;
-  } else {
-    return null;
-  }
+  // if (country != null && city != null && district != null) {
+  final prayerTimes = await ApiService.instance.getPrayerTimes(
+    'Turkey',
+    'Eskişehir',
+    'Eskişehir',
+    DateFormat('yMMMMd').format(DateTime.now()),
+  );
+  return prayerTimes;
+  // } else if (country == '' && city == '' && district == '') {
+  //   return null;
+  // } else {
+  //   return null;
+  // }
 });
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
@@ -342,30 +343,31 @@ class LocationSelectionScreenState
                             }(),
                           ),
                         value < end1 == true
-                            ? SliderTheme(
-                                data: SliderThemeData(
-                                  thumbShape: SunThumbShape(image: _sunImage),
-                                ),
-                                child: Slider(
-                                  min: start1.toDouble(),
-                                  max: end1.toDouble(),
-                                  value: double.parse(value.toStringAsFixed(2)),
-                                  onChanged: null,
-                                ),
+                            ? const RiveAnimation.asset(
+                                'assets/test.riv',
+                                fit: BoxFit.cover,
                               )
-                            : SliderTheme(
-                                data: SliderThemeData(
-                                  showValueIndicator: ShowValueIndicator.always,
-                                  trackHeight: 10,
-                                  thumbShape: MoonThumbShape(image: _moonImage),
-                                ),
-                                child: Slider(
-                                  min: start2.toDouble(),
-                                  max: end2.toDouble(),
-                                  value: double.parse(value.toStringAsFixed(2)),
-                                  onChanged: null,
-                                  divisions: 5,
-                                  
+                            : SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: RotatedBox(
+                                  quarterTurns: 1,
+                                  child: SliderTheme(
+                                    data: SliderThemeData(
+                                      trackHeight: 10,
+                                      thumbShape:
+                                          MoonThumbShape(image: _moonImage),
+                                    ),
+                                    child: Slider(
+                                      min: start2.toDouble(),
+                                      max: end2.toDouble(),
+                                      value: double.parse(
+                                        value.toStringAsFixed(2),
+                                      ),
+                                      onChanged: null,
+                                      divisions: 7,
+                                    ),
+                                  ),
                                 ),
                               ),
                         const Row(),
@@ -378,6 +380,79 @@ class LocationSelectionScreenState
         ],
       ),
     );
+  }
+}
+
+class CustomTrackShape extends SliderTrackShape {
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    Offset offset = Offset.zero,
+    bool? isEnabled,
+    bool? isDiscrete,
+  }) {
+    final trackHeight = sliderTheme.trackHeight!;
+    final trackLeft = offset.dx +
+        sliderTheme.thumbShape!
+                .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
+                .width /
+            2;
+    final trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final trackWidth = parentBox.size.width -
+        sliderTheme.thumbShape!
+            .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
+            .width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    ui.Offset offset, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required ui.Offset thumbCenter,
+    required ui.TextDirection textDirection,
+    ui.Offset? secondaryOffset,
+    bool? isEnabled,
+    bool? isDiscrete,
+  }) {
+    final canvas = context.canvas;
+
+    final trackRect = getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+
+    final paint = Paint()
+      ..color = sliderTheme.activeTrackColor!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sliderTheme.trackHeight!;
+
+    final thumbRadius = sliderTheme.thumbShape!
+            .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
+            .width /
+        2;
+    final thumbStartX = thumbCenter.dx - thumbRadius;
+    final thumbEndX = thumbCenter.dx + thumbRadius;
+    final thumbY = thumbCenter.dy;
+
+    final trackPath = Path();
+    trackPath.moveTo(trackRect.left, thumbY);
+    trackPath.lineTo(thumbStartX, thumbY);
+    trackPath.addArc(
+      Rect.fromCircle(center: thumbCenter, radius: thumbRadius),
+      pi,
+      pi,
+    );
+    trackPath.lineTo(trackRect.right, thumbY);
+
+    canvas.drawPath(trackPath, paint);
   }
 }
 
@@ -411,31 +486,36 @@ class SunThumbShape extends SliderComponentShape {
     final canvas = context.canvas;
     // Create a paint object with some properties
     final paint = Paint()
-      ..color = Colors.yellow
+      ..color = Colors.transparent
       ..style = PaintingStyle.fill;
-    // Draw a circle on the canvas with the center and radius
-    canvas.drawCircle(center, 24, paint);
+
+    // Calculate the radius of the thumb shape
+    final thumbRadius =
+        sliderTheme.thumbShape!.getPreferredSize(false, false).width / 2;
+
+    // Calculate the adjusted center position to align the thumb with the track
+    final adjustedCenter = Offset(center.dx, center.dy + thumbRadius);
+
+    // Draw a circle on the canvas with the adjusted center and thumb radius
+    canvas.drawCircle(adjustedCenter, thumbRadius, paint);
+
     // If the image object is not null, draw it on top of the circle
     if (image != null) {
+      final imageSize = Size(thumbRadius * 2, thumbRadius * 2);
+      final imageRect = Rect.fromCenter(
+        center: adjustedCenter,
+        width: imageSize.width,
+        height: imageSize.height,
+      );
       paintImage(
         canvas: canvas,
-        rect: Rect.fromCenter(center: center, width: 48, height: 48),
+        rect: imageRect,
         image: image!,
         fit: BoxFit.cover,
       );
     }
 
     // I want to bend slider
-    canvas.drawArc(
-      Rect.fromCenter(center: center, width: 48, height: 48),
-      0,
-      2 * pi,
-      false,
-      Paint()
-        ..color = Colors.yellow
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
   }
 }
 
