@@ -252,61 +252,37 @@ class NextPrayerTimeCard extends StatelessWidget {
   final int index;
 
   Text checkTimes() {
-    // Create a DateFormat object with the desired format
-    final now = DateTime.now();
-    final formattedTime = DateFormat('hh:mm').format(now);
+    // get current time and format as hh:mm
+    final currentTime = DateFormat('HH:mm').format(DateTime.now());
+    final durationNow = Duration(
+      hours: int.parse(currentTime.split(':')[0]),
+      minutes: int.parse(currentTime.split(':')[1]),
+    );
+    final duration1 = Duration(
+      hours: int.parse(times[5].split(':')[0]),
+      minutes: int.parse(times[5].split(':')[1]),
+    );
 
-// Parse the time from the list using the DateFormat object
-
-    final time = DateFormat('hh:mm').parse(times[index]);
-
-// Get the duration between the two times
-    final duration = time.difference(DateTime.parse(formattedTime));
-
-    switch (index) {
-      case 0:
-        time.isAfter(DateTime.parse(formattedTime));
-        return Text(
-          'Fajr in \n ${duration.inHours} hours ${duration.inMinutes} minutes',
-        );
-      case 1: // sunrise
-        time.isAfter(DateTime.parse(formattedTime));
-
-        return Text(
-          'Sunrise in \n ${time.difference(DateTime.parse(formattedTime)).inHours} hours ${time.difference(DateTime.parse(formattedTime))} minutes)}',
-        );
-      case 2: // Dhuhr
-        time.isAfter(DateTime.parse(formattedTime));
+    for (var i = 0; i < times.length; i++) {
+      final durations = Duration(
+        hours: int.parse(times[i].split(':')[0]),
+        minutes: int.parse(times[i].split(':')[1]),
+      );
+      print(durations);
+      final difference = durations - durationNow;
+      if (difference.isNegative) {
+        final dif = duration1 - durationNow;
 
         return Text(
-          'Dhuhr in \n ${time.difference(DateTime.parse(formattedTime)).inHours} hours ${time.difference(DateTime.parse(formattedTime)).inMinutes} minutes)}',
+          'Next Prayer Time is \n${times[i]}',
         );
-      case 3:
-        time.isAfter(DateTime.parse(formattedTime));
-
+      } else {
         return Text(
-          'Asr in \n ${time.difference(DateTime.parse(formattedTime))} hours ${time.difference(DateTime.parse(formattedTime))} minutes)}',
+          'Next Prayer Time ${times[i]}',
         );
-
-      case 4:
-        time.isAfter(DateTime.parse(formattedTime));
-
-        return Text(
-          'Maghrib in \n ${time.difference(DateTime.parse(formattedTime)).inHours} hours ${time.difference(DateTime.parse(formattedTime)).inMinutes} minutes)}',
-        );
-
-      case 5:
-        time.isAfter(DateTime.parse(formattedTime));
-
-        return Text(
-          'Isha in \n ${time.difference(DateTime.parse(formattedTime)).inHours} hours ${time.difference(DateTime.parse(formattedTime)).inMinutes} minutes)}',
-        );
-
-      default:
-        return const Text(
-          'Error',
-        );
+      }
     }
+    return const Text('');
   }
 
   @override
