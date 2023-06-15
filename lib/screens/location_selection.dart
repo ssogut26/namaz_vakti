@@ -71,10 +71,11 @@ final getPrayerTimes = FutureProvider((ref) async {
   // if (country != null && city != null && district != null) {
   final prayerTimes = await ApiService.instance.getPrayerTimes(
     'Turkey',
-    'Eskişehir',
-    'Eskişehir',
+    'Ankara',
+    'Ankara',
     DateFormat('yMMMMd').format(DateTime.now()),
   );
+  print(prayerTimes);
   return prayerTimes;
   // } else if (country == '' && city == '' && district == '') {
   //   return null;
@@ -548,11 +549,9 @@ class MoonThumbShape extends SliderComponentShape {
   }) {
     final canvas = context.canvas;
     // Create a paint object with some properties
-    final paint = Paint()
-      ..color = Colors.yellow
-      ..style = PaintingStyle.fill;
+
     // Draw a circle on the canvas with the center and radius
-    canvas.drawCircle(center, 24, paint);
+    canvas.drawCircle(center, 24 * 2, Paint()..color = Colors.transparent);
     // If the image object is not null, draw it on top of the circle
     if (image != null) {
       paintImage(
@@ -562,17 +561,5 @@ class MoonThumbShape extends SliderComponentShape {
         fit: BoxFit.cover,
       );
     }
-
-    // I want to bend slider
-    canvas.drawArc(
-      Rect.fromCenter(center: center, width: 48, height: 48),
-      0,
-      2 * pi,
-      false,
-      Paint()
-        ..color = Colors.yellow
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
   }
 }

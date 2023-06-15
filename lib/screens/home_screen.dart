@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -75,103 +76,136 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      body: prayerTimes.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stackTrace) => Center(
-          child: Text(error.toString()),
-        ),
-        data: (times) {
-          if (times?.times?.isEmpty ?? true) {
-            return const Center(
-              child: Text('No data'),
+      body: Padding(
+        padding: const EdgeInsets.all(8),
+        child: prayerTimes.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
+          error: (error, stackTrace) => Center(
+            child: Text(error.toString()),
+          ),
+          data: (times) {
+            if (times?.times?.isEmpty ?? true) {
+              return const Center(
+                child: Text('No data'),
+              );
+            }
+            int timeToMinutes(String time) {
+              final parts = time.split(':');
+              final hours = int.parse(parts[0]);
+              final minutes = int.parse(parts[1]);
+              return hours * 60 + minutes;
+            }
+
+            final timesOne = times?.times?.values.first;
+
+            final start1 = timeToMinutes(timesOne?[1] ?? ''); // sunrise
+            final end1 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
+            final start2 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
+            final end2 =
+                timeToMinutes(timesOne?[1] ?? '') + 1440; // sunrise + 24 hours
+            String removeDecimalZeroFormat(double n) {
+              return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
+            }
+
+            final value = timeToMinutes(
+              DateFormat('HH:mm').format(DateTime.now()),
             );
-          }
-          int timeToMinutes(String time) {
-            final parts = time.split(':');
-            final hours = int.parse(parts[0]);
-            final minutes = int.parse(parts[1]);
-            return hours * 60 + minutes;
-          }
 
-          final timesOne = times?.times?.values.first;
+            String minutesToTime(int minutes) {
+              final hours = minutes ~/ 60;
+              final mins = minutes % 60;
+              return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}';
+            }
 
-          final start1 = timeToMinutes(timesOne?[1] ?? ''); // sunrise
-          final end1 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
-          final start2 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
-          final end2 =
-              timeToMinutes(timesOne?[1] ?? '') + 1440; // sunrise + 24 hours
-          String removeDecimalZeroFormat(double n) {
-            return n.toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
-          }
-
-          final value = timeToMinutes(
-            DateFormat('HH:mm').format(DateTime.now()),
-          );
-
-          String minutesToTime(int minutes) {
-            final hours = minutes ~/ 60;
-            final mins = minutes % 60;
-            return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}';
-          }
-
-          return Column(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: ListView.builder(
-                  itemCount: 1,
-                  itemBuilder: (context, index) {
-                    return NextPrayerTimeCard(
-                      times: times?.times?.values.first ?? [],
-                      index: index,
-                    );
-                  },
-                ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: ListView.builder(
-                      itemCount: times?.times?.values.first.length,
-                      itemBuilder: (context, index) {
-                        return PrayerTimeCard(
-                          times: times?.times?.values.first ?? [],
-                          index: index,
-                        );
-                      },
-                    ),
+            return Column(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  child: ListView.builder(
+                    itemCount: 1,
+                    itemBuilder: (context, index) {
+                      return NextPrayerTimeCard(
+                        times: times?.times?.values.first ?? [],
+                        index: index,
+                      );
+                    },
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.52,
-                    child: RotatedBox(
-                      quarterTurns: 3,
-                      child: SliderTheme(
-                        data: SliderThemeData(
-                          trackHeight: 20,
-                          thumbShape: MoonThumbShape(image: _moonImage),
-                        ),
-                        child: Slider(
-                          min: start2.toDouble(),
-                          max: end2.toDouble(),
-                          value: double.parse(
-                            value.toStringAsFixed(2),
-                          ),
-                          onChanged: null,
-                          divisions: 6,
-                        ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // ignore: lines_longer_than_80_chars
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.65,
+                      width: MediaQuery.of(context).size.width * 0.80,
+                      child: ListView.builder(
+                        itemCount: times?.times?.values.first.length,
+                        itemBuilder: (context, index) {
+                          return PrayerTimeCard(
+                            times: times?.times?.values.first ?? [],
+                            index: index,
+                          );
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+                    if (value < end1)
+                      Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * .65,
+                          child: RotatedBox(
+                            quarterTurns: 3,
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 20,
+                                thumbShape: SunThumbShape(image: _sunImage),
+                              ),
+                              child: Slider(
+                                min: start1.toDouble(),
+                                max: end1.toDouble(),
+                                value: double.parse(
+                                  value.toStringAsFixed(2),
+                                ),
+                                onChanged: null,
+                                divisions: end1 - start1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height * .65,
+                          child: RotatedBox(
+                            quarterTurns: 3,
+                            child: SliderTheme(
+                              data: SliderThemeData(
+                                trackHeight: 20,
+                                thumbShape: MoonThumbShape(image: _moonImage),
+                              ),
+                              child: Slider(
+                                min: start2.toDouble(),
+                                max: end2.toDouble() - start1.toDouble(),
+                                value: double.parse(
+                                  value.toStringAsFixed(2),
+                                ),
+                                onChanged: null,
+                                divisions: end2 - start1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -241,7 +275,7 @@ class PrayerTimeCard extends StatelessWidget {
   }
 }
 
-class NextPrayerTimeCard extends StatelessWidget {
+class NextPrayerTimeCard extends StatefulWidget {
   const NextPrayerTimeCard({
     required this.times,
     required this.index,
@@ -251,6 +285,16 @@ class NextPrayerTimeCard extends StatelessWidget {
   final List<String> times;
   final int index;
 
+  @override
+  State<NextPrayerTimeCard> createState() => _NextPrayerTimeCardState();
+}
+
+class _NextPrayerTimeCardState extends State<NextPrayerTimeCard>
+    with TickerProviderStateMixin {
+  Timer? _timer;
+  Duration? nextTime;
+  AnimationController? _controller;
+
   Text checkTimes() {
     // get current time and format as hh:mm
     final currentTime = DateFormat('HH:mm').format(DateTime.now());
@@ -258,31 +302,66 @@ class NextPrayerTimeCard extends StatelessWidget {
       hours: int.parse(currentTime.split(':')[0]),
       minutes: int.parse(currentTime.split(':')[1]),
     );
-    final duration1 = Duration(
-      hours: int.parse(times[5].split(':')[0]),
-      minutes: int.parse(times[5].split(':')[1]),
-    );
 
-    for (var i = 0; i < times.length; i++) {
+    for (var i = 0; i < widget.times.length; i++) {
       final durations = Duration(
-        hours: int.parse(times[i].split(':')[0]),
-        minutes: int.parse(times[i].split(':')[1]),
+        hours: int.parse(widget.times[i].split(':')[0]),
+        minutes: int.parse(widget.times[i].split(':')[1]),
       );
-      print(durations);
-      final difference = durations - durationNow;
-      if (difference.isNegative) {
-        final dif = duration1 - durationNow;
 
-        return Text(
-          'Next Prayer Time is \n${times[i]}',
-        );
+      final difference = durations - durationNow;
+      nextTime = difference;
+      if (difference.isNegative) {
+        final dif = durations - durationNow + const Duration(hours: 23);
+        print(dif);
+        nextTime = dif;
       } else {
         return Text(
-          'Next Prayer Time ${times[i]}',
+          'Next Prayer Time ${widget.times[i]}',
         );
       }
     }
     return const Text('');
+  }
+
+  int getRemainingTime(Duration endTime) {
+    final difference = endTime;
+
+    if (difference.isNegative) {
+      _timer?.cancel();
+      return 0;
+    }
+
+    final hours = difference.inHours.remainder(24);
+    final minutes = difference.inMinutes.remainder(60);
+    final seconds = difference.inSeconds.remainder(60);
+
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkTimes();
+    _timer = Timer.periodic(nextTime ?? const Duration(), (Timer timer) {
+      setState(() {});
+    });
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(
+        seconds: getRemainingTime(nextTime ?? const Duration()),
+      ), // gameData.levelClock is a user entered number elsewhere in the applciation
+    );
+
+    _controller?.forward();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller?.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -290,18 +369,34 @@ class NextPrayerTimeCard extends StatelessWidget {
     return Card(
       child: Column(
         children: [
-          checkTimes(),
-          Text(
-            'Next Prayer Time in',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          Text(
-            '01 hours 30 minutes',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          Countdown(
+            animation: StepTween(
+              begin: getRemainingTime(nextTime ?? const Duration()),
+              end: 0,
+            ).animate(_controller!),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class Countdown extends AnimatedWidget {
+  Countdown({super.key, this.animation}) : super(listenable: animation!);
+  Animation<int>? animation;
+
+  @override
+  Text build(BuildContext context) {
+    final clockTimer = Duration(seconds: animation?.value ?? 0);
+
+    final timerText =
+        '${clockTimer.inHours.remainder(24).toString().padLeft(2, '0')}:${clockTimer.inMinutes.remainder(60).toString().padLeft(2, '0')}';
+
+    return Text(
+      timerText,
+      style: TextStyle(
+        fontSize: 90,
+        color: Theme.of(context).primaryColor,
       ),
     );
   }
