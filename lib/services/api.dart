@@ -71,7 +71,7 @@ class ApiService extends Api {
     String cityId,
     String district,
     String date, {
-    String days = '2',
+    String days = '30',
   }) async {
     final request = await http.get(
       Uri.parse(

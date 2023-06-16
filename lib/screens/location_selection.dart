@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_if_elements_to_conditional_expressions
 
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:dropdown_search/dropdown_search.dart';
@@ -64,7 +63,8 @@ final districtSelectionProvider = FutureProvider((ref) async {
   return districts;
 });
 
-final getPrayerTimes = FutureProvider((ref) async {
+final getPrayerTimes =
+    FutureProvider.family.autoDispose((ref, String dates) async {
   final country = ref.watch(locationProvider).country;
   final city = ref.watch(locationProvider).city;
   final district = ref.watch(locationProvider).district;
@@ -73,9 +73,9 @@ final getPrayerTimes = FutureProvider((ref) async {
     'Turkey',
     'Ankara',
     'Ankara',
-    DateFormat('yMMMMd').format(DateTime.now()),
+    dates,
   );
-  print(prayerTimes);
+
   return prayerTimes;
   // } else if (country == '' && city == '' && district == '') {
   //   return null;
@@ -134,7 +134,8 @@ class LocationSelectionScreenState
     final citySelection = ref.watch(citySelectionProvider);
     final districtSelection = ref.watch(districtSelectionProvider);
     final location = ref.watch(locationProvider);
-    final prayerTimes = ref.watch(getPrayerTimes);
+    final prayerTimes = ref
+        .watch(getPrayerTimes(DateFormat('yyyy-MM-dd').format(DateTime.now())));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Selection'),
@@ -384,79 +385,6 @@ class LocationSelectionScreenState
   }
 }
 
-class CustomTrackShape extends SliderTrackShape {
-  @override
-  Rect getPreferredRect({
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    Offset offset = Offset.zero,
-    bool? isEnabled,
-    bool? isDiscrete,
-  }) {
-    final trackHeight = sliderTheme.trackHeight!;
-    final trackLeft = offset.dx +
-        sliderTheme.thumbShape!
-                .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
-                .width /
-            2;
-    final trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
-    final trackWidth = parentBox.size.width -
-        sliderTheme.thumbShape!
-            .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
-            .width;
-    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    ui.Offset offset, {
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required Animation<double> enableAnimation,
-    required ui.Offset thumbCenter,
-    required ui.TextDirection textDirection,
-    ui.Offset? secondaryOffset,
-    bool? isEnabled,
-    bool? isDiscrete,
-  }) {
-    final canvas = context.canvas;
-
-    final trackRect = getPreferredRect(
-      parentBox: parentBox,
-      offset: offset,
-      sliderTheme: sliderTheme,
-      isEnabled: isEnabled,
-      isDiscrete: isDiscrete,
-    );
-
-    final paint = Paint()
-      ..color = sliderTheme.activeTrackColor!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = sliderTheme.trackHeight!;
-
-    final thumbRadius = sliderTheme.thumbShape!
-            .getPreferredSize(isEnabled ?? false, isDiscrete ?? false)
-            .width /
-        2;
-    final thumbStartX = thumbCenter.dx - thumbRadius;
-    final thumbEndX = thumbCenter.dx + thumbRadius;
-    final thumbY = thumbCenter.dy;
-
-    final trackPath = Path();
-    trackPath.moveTo(trackRect.left, thumbY);
-    trackPath.lineTo(thumbStartX, thumbY);
-    trackPath.addArc(
-      Rect.fromCircle(center: thumbCenter, radius: thumbRadius),
-      pi,
-      pi,
-    );
-    trackPath.lineTo(trackRect.right, thumbY);
-
-    canvas.drawPath(trackPath, paint);
-  }
-}
-
 class SunThumbShape extends SliderComponentShape {
   // A constructor that takes the image object as a parameter
   SunThumbShape({this.image});
@@ -486,31 +414,14 @@ class SunThumbShape extends SliderComponentShape {
   }) {
     final canvas = context.canvas;
     // Create a paint object with some properties
-    final paint = Paint()
-      ..color = Colors.transparent
-      ..style = PaintingStyle.fill;
 
-    // Calculate the radius of the thumb shape
-    final thumbRadius =
-        sliderTheme.thumbShape!.getPreferredSize(false, false).width / 2;
-
-    // Calculate the adjusted center position to align the thumb with the track
-    final adjustedCenter = Offset(center.dx, center.dy + thumbRadius);
-
-    // Draw a circle on the canvas with the adjusted center and thumb radius
-    canvas.drawCircle(adjustedCenter, thumbRadius, paint);
-
+    // Draw a circle on the canvas with the center and radius
+    canvas.drawCircle(center, 24 * 2, Paint()..color = Colors.transparent);
     // If the image object is not null, draw it on top of the circle
     if (image != null) {
-      final imageSize = Size(thumbRadius * 2, thumbRadius * 2);
-      final imageRect = Rect.fromCenter(
-        center: adjustedCenter,
-        width: imageSize.width,
-        height: imageSize.height,
-      );
       paintImage(
         canvas: canvas,
-        rect: imageRect,
+        rect: Rect.fromCenter(center: center, width: 48, height: 48),
         image: image!,
         fit: BoxFit.cover,
       );
