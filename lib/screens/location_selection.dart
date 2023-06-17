@@ -71,8 +71,8 @@ final getPrayerTimes =
   // if (country != null && city != null && district != null) {
   final prayerTimes = await ApiService.instance.getPrayerTimes(
     'Turkey',
-    'Ankara',
-    'Ankara',
+    'Eskişehir',
+    'Eskişehir',
     dates,
   );
 

@@ -185,87 +185,82 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
               itemCount: times?.times?.values.length,
               itemBuilder: (context, pageIndex) {
-                return GestureDetector(
-                  onLongPress: () {
-                    pageIndex++;
-                  },
-                  child: Column(
-                    children: [
-                      if (pageIndex == 0)
+                final a = times?.times?.values.map((e) => e).toList();
+
+                return Column(
+                  children: [
+                    if (pageIndex == 0)
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        child: NextPrayerTimeCard(
+                          times: a ?? [],
+                          index: pageIndex,
+                        ),
+                      )
+                    else
+                      Card(
+                        child: Center(
+                          child: Text(date ?? ''),
+                        ),
+                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      // ignore: lines_longer_than_80_chars
+                      children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.2,
-                          child: NextPrayerTimeCard(
-                            times: times?.times?.values.first ?? [],
-                            index: pageIndex,
-                          ),
-                        )
-                      else
-                        Card(
-                          child: Center(
-                            child: Text(date ?? ''),
+                          height: MediaQuery.of(context).size.height * 0.65,
+                          width: pageIndex == 0
+                              ? MediaQuery.of(context).size.width * 0.80
+                              : MediaQuery.of(context).size.width * 0.95,
+                          child: ListView.builder(
+                            // There is 6 value on each day so
+                            // we need to set itemCount to 6
+                            itemCount: 6,
+                            itemBuilder: (context, index) {
+                              return PrayerTimeCard(
+                                times:
+                                    times?.times?.values.elementAt(pageIndex) ??
+                                        [],
+                                index: index,
+                              );
+                            },
                           ),
                         ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        // ignore: lines_longer_than_80_chars
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.65,
-                            width: pageIndex == 0
-                                ? MediaQuery.of(context).size.width * 0.80
-                                : MediaQuery.of(context).size.width * 0.95,
-                            child: ListView.builder(
-                              // There is 6 value on each day so
-                              // we need to set itemCount to 6
-                              itemCount: 6,
-                              itemBuilder: (context, index) {
-                                return PrayerTimeCard(
-                                  times: times?.times?.values
-                                          .elementAt(pageIndex) ??
-                                      [],
-                                  index: index,
-                                );
-                              },
-                            ),
-                          ),
-                          if (time < maghrib && pageIndex == 0)
-                            Padding(
-                              padding: const EdgeInsets.all(2),
-                              child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * .65,
-                                child: RotatedBox(
-                                  quarterTurns: 1,
-                                  child: SliderTheme(
-                                    data: SliderThemeData(
-                                      trackHeight: 20,
-                                      thumbShape:
-                                          SunThumbShape(image: _sunImage),
-                                    ),
-                                    child: Slider(
-                                      min: sunrise.toDouble(),
-                                      max: maghrib.toDouble(),
-                                      value: time.toDouble(),
-                                      onChanged: null,
-                                      divisions: maghrib - sunrise,
-                                    ),
+                        if (time < maghrib && pageIndex == 0)
+                          Padding(
+                            padding: const EdgeInsets.all(2),
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.height * .65,
+                              child: RotatedBox(
+                                quarterTurns: 1,
+                                child: SliderTheme(
+                                  data: SliderThemeData(
+                                    trackHeight: 20,
+                                    thumbShape: SunThumbShape(image: _sunImage),
+                                  ),
+                                  child: Slider(
+                                    min: sunrise.toDouble(),
+                                    max: maghrib.toDouble(),
+                                    value: time.toDouble(),
+                                    onChanged: null,
+                                    divisions: maghrib - sunrise,
                                   ),
                                 ),
                               ),
-                            )
-                          else
-                            pageIndex == 0
-                                ? MoonSlider(
-                                    start2: 1400,
-                                    end2: 1410,
-                                    value: time,
-                                    moonImage: _moonImage,
-                                  )
-                                : const Text(''),
-                        ],
-                      ),
-                    ],
-                  ),
+                            ),
+                          )
+                        else
+                          pageIndex == 0
+                              ? MoonSlider(
+                                  start2: 0,
+                                  end2: 1440 - sunrise,
+                                  value: time - maghrib,
+                                  moonImage: _moonImage,
+                                )
+                              : const Text(''),
+                      ],
+                    ),
+                  ],
                 );
               },
             );
@@ -292,13 +287,14 @@ class MoonSlider extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentTime = ref.watch(currentTimeProvider.notifier).time;
+    // print(end2 + (end2 - start2) - 1440);
+    final currentTime = ref.watch(currentTimeProvider.notifier).time - end2;
     return Padding(
       padding: const EdgeInsets.all(2),
       child: SizedBox(
         height: MediaQuery.of(context).size.height * .65,
         child: RotatedBox(
-          quarterTurns: 1,
+          quarterTurns: 3,
           child: SliderTheme(
             data: SliderThemeData(
               trackHeight: 20,
@@ -392,7 +388,7 @@ class NextPrayerTimeCard extends StatefulWidget {
     super.key,
   });
 
-  final List<String> times;
+  final List<List<String>> times;
   final int index;
 
   @override
@@ -415,14 +411,27 @@ class _NextPrayerTimeCardState extends State<NextPrayerTimeCard>
 
     for (var i = 0; i < widget.times.length; i++) {
       final durations = Duration(
-        hours: int.parse(widget.times[i].split(':')[0]),
-        minutes: int.parse(widget.times[i].split(':')[1]),
+        hours: int.parse(
+          widget.times[0][i].split(':')[0],
+        ),
+        minutes: int.parse(
+          widget.times[0][i].split(':')[1],
+        ),
       );
 
       final difference = durations - durationNow;
       nextTime = difference;
       if (difference.isNegative) {
-        final dif = durations - durationNow + const Duration(days: 1);
+        final nextDayDurations = Duration(
+          hours: int.parse(
+            widget.times[1][0].split(':')[0],
+          ),
+          minutes: int.parse(
+            widget.times[1][0].split(':')[1],
+          ),
+        );
+
+        final dif = nextDayDurations - durationNow;
         nextTime = dif;
       } else {
         return const Text(
@@ -437,8 +446,7 @@ class _NextPrayerTimeCardState extends State<NextPrayerTimeCard>
     final difference = endTime;
 
     if (difference.isNegative) {
-      _timer?.cancel();
-      return 0;
+      setState(() {});
     }
 
     final hours = difference.inHours.remainder(24);
@@ -478,7 +486,6 @@ class _NextPrayerTimeCardState extends State<NextPrayerTimeCard>
     return Card(
       child: Column(
         children: [
-          checkTimes(),
           Countdown(
             animation: StepTween(
               begin: getRemainingTime(nextTime ?? const Duration()),
