@@ -1,15 +1,13 @@
 // ignore_for_file: prefer_if_elements_to_conditional_expressions
 
-import 'dart:ui' as ui;
-
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:namaz_vakti/models/countries.dart';
+import 'package:namaz_vakti/screens/home_screen.dart';
 import 'package:namaz_vakti/services/api.dart';
-import 'package:rive/rive.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationNotifier extends ChangeNotifier {
   String? _country;
@@ -63,26 +61,55 @@ final districtSelectionProvider = FutureProvider((ref) async {
   return districts;
 });
 
-final getPrayerTimes =
+final getPrayerTimesWithSelection =
     FutureProvider.family.autoDispose((ref, String dates) async {
   final country = ref.watch(locationProvider).country;
   final city = ref.watch(locationProvider).city;
   final district = ref.watch(locationProvider).district;
-  // if (country != null && city != null && district != null) {
-  final prayerTimes = await ApiService.instance.getPrayerTimes(
-    'Turkey',
-    'Eskişehir',
-    'Eskişehir',
-    dates,
-  );
+  if (country != null && city != null && district != null) {
+    final prayerTimes = await ApiService.instance.getPrayerTimes(
+      country,
+      city,
+      district,
+      dates,
+    );
 
-  return prayerTimes;
-  // } else if (country == '' && city == '' && district == '') {
-  //   return null;
-  // } else {
-  //   return null;
-  // }
+    return prayerTimes;
+  } else if (country == '' && city == '' && district == '') {
+    return null;
+  } else {
+    return null;
+  }
 });
+
+final getPrayerTimesWithLocation =
+    FutureProvider.family.autoDispose((ref, String dates) async {
+  final locator = ref.watch(locatorProvider);
+  final prayerTimes = await ApiService.instance.getPrayerTimesByLocation(
+    latitude: locator.position?.latitude.toString() ?? '',
+    longitude: locator.position?.longitude.toString() ?? '',
+    date: dates,
+  );
+  return prayerTimes;
+});
+
+class LocatorNotifier extends ChangeNotifier {
+  bool _isLocationEnabled = false;
+  bool get isLocationEnabled => _isLocationEnabled;
+  set isLocationEnabled(bool value) {
+    _isLocationEnabled = value;
+    notifyListeners();
+  }
+
+  Position? _position;
+  Position? get position => _position;
+  set position(Position? value) {
+    _position = value;
+    notifyListeners();
+  }
+}
+
+final locatorProvider = ChangeNotifierProvider((ref) => LocatorNotifier());
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
   const LocationSelectionScreen({super.key});
@@ -93,37 +120,6 @@ class LocationSelectionScreen extends ConsumerStatefulWidget {
 
 class LocationSelectionScreenState
     extends ConsumerState<LocationSelectionScreen> {
-  ui.Image? _sunImage;
-  ui.Image? _moonImage;
-
-  // A method to load the image asset
-  Future<void> _loadSunImage() async {
-    // Get the byte data of the image file
-    final data = await rootBundle.load('assets/sun.png');
-    // Decode the image data and create an image object
-    final image = await decodeImageFromList(data.buffer.asUint8List());
-    // Update the state with the image object
-    setState(() {
-      _sunImage = image;
-    });
-  }
-
-  Future<void> loadMoonImage() async {
-    final data = await rootBundle.load('assets/moon.png');
-    final image = await decodeImageFromList(data.buffer.asUint8List());
-    setState(() {
-      _moonImage = image;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Load the image when the widget is initialized
-    _loadSunImage();
-    loadMoonImage();
-  }
-
   String? selectedCountry;
   String? selectedCity;
   String? selectedDistrict;
@@ -131,346 +127,276 @@ class LocationSelectionScreenState
   @override
   Widget build(BuildContext context) {
     final countrySelection = ref.watch(countrySelectionProvider);
-    final citySelection = ref.watch(citySelectionProvider);
-    final districtSelection = ref.watch(districtSelectionProvider);
+
     final location = ref.watch(locationProvider);
-    final prayerTimes = ref
-        .watch(getPrayerTimes(DateFormat('yyyy-MM-dd').format(DateTime.now())));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Selection'),
       ),
-      body: Column(
-        children: [
-          DropdownSearch<String?>(
-            dropdownDecoratorProps: const DropDownDecoratorProps(
-              dropdownSearchDecoration: InputDecoration(
-                labelText: 'Country',
-                hintText: 'Select country',
-              ),
-            ),
-            selectedItem: selectedCountry,
-            popupProps: const PopupProps.modalBottomSheet(
-              showSearchBox: true,
-              searchFieldProps: TextFieldProps(
-                decoration: InputDecoration(
-                  labelText: 'Ülke',
-                  hintText: 'Ülke seçiniz',
-                ),
-              ),
-              searchDelay: Duration(milliseconds: 300),
-              isFilterOnline: true,
-            ),
-            asyncItems: (String filter) async {
-              return countrySelection.when(
-                data: (List<CountriesModel?> countryList) {
-                  final filteredCountries = countryList
-                      .where(
-                        (country) =>
-                            country?.name?.toLowerCase().startsWith(filter) ??
-                            false,
-                      )
-                      .toList();
-                  final countryNameList = <String>[];
-                  for (final country in filteredCountries) {
-                    countryNameList.add(country!.name!);
-                  }
-                  return countryNameList;
-                },
-                loading: () => [
-                  'Loading',
-                ],
-                error: (error, stackTrace) => [
-                  'Error',
-                ],
-              );
-            },
-            onChanged: (value) {
-              ref.watch(locationProvider).country = value;
-              ref.watch(locationProvider).city = null;
-              ref.watch(locationProvider).district = null;
-            },
-          ),
-          (location._country == null || location._country == '')
-              ? const SizedBox.shrink()
-              : DropdownSearch<String?>(
-                  selectedItem: selectedCity,
-                  popupProps: const PopupProps.modalBottomSheet(
-                    showSearchBox: true,
-                    searchFieldProps: TextFieldProps(
-                      decoration: InputDecoration(
-                        labelText: 'City',
-                        hintText: 'Select city',
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  DropdownSearch<String?>(
+                    dropdownDecoratorProps: const DropDownDecoratorProps(
+                      dropdownSearchDecoration: InputDecoration(
+                        labelText: 'Country',
+                        hintText: 'Select country',
                       ),
                     ),
-                    searchDelay: Duration(milliseconds: 300),
-                    isFilterOnline: true,
-                  ),
-                  asyncItems: (String filter) async {
-                    return citySelection.when(
-                      data: (List<dynamic> cityList) {
-                        final filteredCountries = cityList
-                            .where(
-                              (cities) => cities
-                                  .toString()
-                                  .toLowerCase()
-                                  .startsWith(filter),
-                            )
-                            .toList();
-                        final countryNameList = <String>[];
-                        for (final country in filteredCountries) {
-                          countryNameList.add(country as String);
-                        }
-                        return countryNameList;
-                      },
-                      loading: () => [
-                        'Loading',
-                      ],
-                      error: (error, stackTrace) => [
-                        'Error',
-                      ],
-                    );
-                  },
-                  onChanged: (value) {
-                    ref.watch(locationProvider).city = value;
-                    ref.watch(locationProvider).district = null;
-                  },
-                ),
-          (location._country == null ||
-                  location._country == '' ||
-                  location._city == null ||
-                  location._city == '')
-              ? const SizedBox.shrink()
-              : DropdownSearch<String?>(
-                  selectedItem: selectedCity,
-                  popupProps: const PopupProps.modalBottomSheet(
-                    showSearchBox: true,
-                    searchFieldProps: TextFieldProps(
-                      decoration: InputDecoration(
-                        labelText: 'City',
-                        hintText: 'Select city',
+                    selectedItem: selectedCountry,
+                    popupProps: const PopupProps.modalBottomSheet(
+                      showSearchBox: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          labelText: 'Ülke',
+                          hintText: 'Ülke seçiniz',
+                        ),
                       ),
+                      searchDelay: Duration(milliseconds: 300),
+                      isFilterOnline: true,
                     ),
-                    searchDelay: Duration(milliseconds: 300),
-                    isFilterOnline: true,
-                  ),
-                  asyncItems: (String filter) async {
-                    return districtSelection.when(
-                      data: (List<dynamic> districtList) {
-                        final filteredCountries = districtList
-                            .where(
-                              (cities) => cities
-                                  .toString()
-                                  .toLowerCase()
-                                  .startsWith(filter),
-                            )
-                            .toList();
-                        final countryNameList = <String>[];
-                        for (final country in filteredCountries) {
-                          countryNameList.add(country as String);
-                        }
-                        return countryNameList;
-                      },
-                      loading: () => [
-                        'Loading',
-                      ],
-                      error: (error, stackTrace) => [
-                        'Error',
-                      ],
-                    );
-                  },
-                  onChanged: (value) {
-                    ref.watch(locationProvider).district = value;
-                  },
-                ),
-          (location._country == null ||
-                  location._country == '' ||
-                  location._city == null ||
-                  location._city == '' ||
-                  location._district == null ||
-                  location._district == '')
-              ? const SizedBox.shrink()
-              : prayerTimes.when(
-                  data: (times) {
-                    int timeToMinutes(String time) {
-                      final parts = time.split(':');
-                      final hours = int.parse(parts[0]);
-                      final minutes = int.parse(parts[1]);
-                      return hours * 60 + minutes;
-                    }
-
-                    final timesOne = times?.times?.values.first;
-                    timesOne?.add('24:00');
-                    final start1 = timeToMinutes(timesOne?[1] ?? ''); // sunrise
-                    final end1 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
-                    final start2 = timeToMinutes(timesOne?[4] ?? ''); // Maghrib
-                    final end2 = timeToMinutes(timesOne?[1] ?? '') +
-                        1440; // sunrise + 24 hours
-                    String removeDecimalZeroFormat(double n) {
-                      return n
-                          .toStringAsFixed(n.truncateToDouble() == n ? 0 : 1);
-                    }
-
-                    final value = timeToMinutes(
-                      DateFormat('HH:mm').format(DateTime.now()),
-                    );
-                    print({value < end1});
-                    String minutesToTime(int minutes) {
-                      final hours = minutes ~/ 60;
-                      final mins = minutes % 60;
-                      return '${hours.toString().padLeft(2, '0')}:${mins.toString().padLeft(2, '0')}';
-                    }
-
-                    return Column(
-                      children: [
-                        for (int i = 0; i < (timesOne?.length ?? 0); i++)
-                          Text(
-                            () {
-                              switch (i) {
-                                case 0:
-                                  return 'Fajr: ${timesOne?[i]}';
-                                case 1:
-                                  return 'Sunrise: ${timesOne?[i]}';
-                                case 2:
-                                  return 'Dhuhr: ${timesOne?[i]}';
-                                case 3:
-                                  return 'Asr: ${timesOne?[i]}';
-                                case 4:
-                                  return 'Maghrib: ${timesOne?[i]}';
-                                case 5:
-                                  return 'Isha: ${timesOne?[i]}';
-                                default:
-                                  return '';
-                              }
-                            }(),
-                          ),
-                        value < end1 == true
-                            ? const RiveAnimation.asset(
-                                'assets/test.riv',
-                                fit: BoxFit.cover,
+                    asyncItems: (String filter) async {
+                      return countrySelection.when(
+                        data: (List<CountriesModel?> countryList) {
+                          final filteredCountries = countryList
+                              .where(
+                                (country) =>
+                                    country?.name
+                                        ?.toLowerCase()
+                                        .startsWith(filter) ??
+                                    false,
                               )
-                            : SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.5,
-                                child: RotatedBox(
-                                  quarterTurns: 1,
-                                  child: SliderTheme(
-                                    data: SliderThemeData(
-                                      trackHeight: 10,
-                                      thumbShape:
-                                          MoonThumbShape(image: _moonImage),
-                                    ),
-                                    child: Slider(
-                                      min: start2.toDouble(),
-                                      max: end2.toDouble(),
-                                      value: double.parse(
-                                        value.toStringAsFixed(2),
-                                      ),
-                                      onChanged: null,
-                                      divisions: 7,
-                                    ),
-                                  ),
-                                ),
+                              .toList();
+                          final countryNameList = <String>[];
+                          for (final country in filteredCountries) {
+                            countryNameList.add(country!.name!);
+                          }
+                          return countryNameList;
+                        },
+                        loading: () => [
+                          'Loading',
+                        ],
+                        error: (error, stackTrace) => [
+                          'Error',
+                        ],
+                      );
+                    },
+                    onChanged: (value) {
+                      ref.watch(locationProvider).country = value;
+                      ref.watch(locationProvider).city = null;
+                      ref.watch(locationProvider).district = null;
+                    },
+                  ),
+                  (location._country == null || location._country == '')
+                      ? const SizedBox.shrink()
+                      : DropdownSearch<String?>(
+                          dropdownDecoratorProps: const DropDownDecoratorProps(
+                            dropdownSearchDecoration: InputDecoration(
+                              labelText: 'City',
+                              hintText: 'Select City',
+                            ),
+                          ),
+                          selectedItem: selectedCity,
+                          popupProps: const PopupProps.modalBottomSheet(
+                            showSearchBox: true,
+                            searchFieldProps: TextFieldProps(
+                              decoration: InputDecoration(
+                                labelText: 'City',
+                                hintText: 'Select city',
                               ),
-                        const Row(),
-                      ],
+                            ),
+                            searchDelay: Duration(milliseconds: 300),
+                            isFilterOnline: true,
+                          ),
+                          asyncItems: (String filter) async {
+                            final citySelection =
+                                ref.watch(citySelectionProvider);
+                            return citySelection.when(
+                              data: (cityList) {
+                                final filteredCities = cityList
+                                    .where(
+                                      (cities) => cities
+                                          .toString()
+                                          .toLowerCase()
+                                          .startsWith(filter),
+                                    )
+                                    .toList();
+                                final cityNameList = <String>[];
+                                for (final city in filteredCities) {
+                                  cityNameList.add(city as String);
+                                }
+                                return cityNameList;
+                              },
+                              loading: () => [
+                                'Loading',
+                              ],
+                              error: (error, stackTrace) => [
+                                'Error',
+                              ],
+                            );
+                          },
+                          onChanged: (value) {
+                            ref.watch(locationProvider).city = value;
+                            ref.watch(locationProvider).district = null;
+                          },
+                        ),
+                  (location._country == null ||
+                          location._country == '' ||
+                          location._city == null ||
+                          location._city == '')
+                      ? const SizedBox.shrink()
+                      : DropdownSearch<String?>(
+                          dropdownDecoratorProps: const DropDownDecoratorProps(
+                            dropdownSearchDecoration: InputDecoration(
+                              labelText: 'District',
+                              hintText: 'Select District',
+                            ),
+                          ),
+                          selectedItem: selectedCity,
+                          popupProps: const PopupProps.modalBottomSheet(
+                            showSearchBox: true,
+                            searchFieldProps: TextFieldProps(
+                              decoration: InputDecoration(
+                                labelText: 'City',
+                                hintText: 'Select city',
+                              ),
+                            ),
+                            searchDelay: Duration(milliseconds: 300),
+                            isFilterOnline: true,
+                          ),
+                          asyncItems: (String filter) async {
+                            final districtSelection =
+                                ref.watch(districtSelectionProvider);
+
+                            return districtSelection.when(
+                              data: (List<dynamic> districtList) {
+                                final filteredCountries = districtList
+                                    .where(
+                                      (cities) => cities
+                                          .toString()
+                                          .toLowerCase()
+                                          .startsWith(filter),
+                                    )
+                                    .toList();
+                                final countryNameList = <String>[];
+                                for (final country in filteredCountries) {
+                                  countryNameList.add(country as String);
+                                }
+                                return countryNameList;
+                              },
+                              loading: () => [
+                                'Loading',
+                              ],
+                              error: (error, stackTrace) => [
+                                'Error',
+                              ],
+                            );
+                          },
+                          onChanged: (value) {
+                            ref.watch(locationProvider).district = value;
+                          },
+                        ),
+                ],
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.4),
+            TextButton(
+              onPressed: () async {
+                final status = await Permission.location.status;
+                if (status.isDenied) {
+                  // We didn't ask for permission yet or the permission has been denied before but not permanently.
+                  await Permission.location.request();
+                }
+
+// You can can also directly ask the permission about its status.
+                if (await Permission.location.isRestricted) {
+                  // The OS restricts access, for example because of parental controls.
+                  final location = await Geolocator.getCurrentPosition();
+
+                  ref.read(locatorProvider)._position = location;
+                  if (location != null) {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(
+                          isLocation: true,
+                        ),
+                      ),
                     );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (error, stackTrace) => Text('Error$error'),
+                  } else {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Location Error'),
+                        content: const Text(
+                          'Please enable location services to continue',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                } else if (await Permission.location.isPermanentlyDenied) {
+                  // The user opted to never again see the permission request dialog for this
+                  // app. The only way to change the permission's status now is to let the
+                  // user manually enable it in the system settings.
+                  await openAppSettings();
+                } else {
+                  final location = await Geolocator.getCurrentPosition();
+
+                  ref.read(locatorProvider)._position = location;
+
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const HomeScreen(
+                        isLocation: true,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Use my location'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(
+                  MediaQuery.of(context).size.width,
+                  50,
                 ),
-        ],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+              ),
+              onPressed: (location.district?.isEmpty ?? true)
+                  ? null
+                  : () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const HomeScreen(
+                            isLocation: false,
+                          ),
+                        ),
+                      );
+                    },
+              child: const Text('Get Prayer Times'),
+            )
+          ],
+        ),
       ),
     );
-  }
-}
-
-class SunThumbShape extends SliderComponentShape {
-  // A constructor that takes the image object as a parameter
-  SunThumbShape({this.image});
-  // The image object to draw
-  final ui.Image? image;
-
-  @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
-    // Return the preferred size of the thumb shape
-    return const Size(48, 48);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    ui.Offset center, {
-    required Animation<double> activationAnimation,
-    required Animation<double> enableAnimation,
-    required bool isDiscrete,
-    required TextPainter labelPainter,
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required ui.TextDirection textDirection,
-    required double value,
-    required double textScaleFactor,
-    required ui.Size sizeWithOverflow,
-  }) {
-    final canvas = context.canvas;
-    // Create a paint object with some properties
-
-    // Draw a circle on the canvas with the center and radius
-    canvas.drawCircle(center, 24 * 2, Paint()..color = Colors.transparent);
-    // If the image object is not null, draw it on top of the circle
-    if (image != null) {
-      paintImage(
-        canvas: canvas,
-        rect: Rect.fromCenter(center: center, width: 48, height: 48),
-        image: image!,
-        fit: BoxFit.cover,
-      );
-    }
-
-    // I want to bend slider
-  }
-}
-
-class MoonThumbShape extends SliderComponentShape {
-  // A constructor that takes the image object as a parameter
-  MoonThumbShape({this.image});
-  // The image object to draw
-  final ui.Image? image;
-
-  @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
-    // Return the preferred size of the thumb shape
-    return const Size(48, 48);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    ui.Offset center, {
-    required Animation<double> activationAnimation,
-    required Animation<double> enableAnimation,
-    required bool isDiscrete,
-    required TextPainter labelPainter,
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required ui.TextDirection textDirection,
-    required double value,
-    required double textScaleFactor,
-    required ui.Size sizeWithOverflow,
-  }) {
-    final canvas = context.canvas;
-    // Create a paint object with some properties
-
-    // Draw a circle on the canvas with the center and radius
-    canvas.drawCircle(center, 24 * 2, Paint()..color = Colors.transparent);
-    // If the image object is not null, draw it on top of the circle
-    if (image != null) {
-      paintImage(
-        canvas: canvas,
-        rect: Rect.fromCenter(center: center, width: 48, height: 48),
-        image: image!,
-        fit: BoxFit.cover,
-      );
-    }
   }
 }

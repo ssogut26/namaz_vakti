@@ -24,6 +24,13 @@ abstract class Api {
     String date, {
     String days = '1',
   });
+
+  Future<PrayerTimesModel?> getPrayerTimesByLocation({
+    required String latitude,
+    required String longitude,
+    required String date,
+    String days = '1',
+  });
 }
 
 /// Api service for namaz vakti
@@ -76,6 +83,24 @@ class ApiService extends Api {
     final request = await http.get(
       Uri.parse(
         '${AppConstants.baseURL}/timesFromPlace?country=$countryId&region=$cityId&city=$district&date=$date&days=$days&timezoneOffset=180',
+      ),
+    );
+    final prayerTimes = PrayerTimesModel.fromJson(
+      json.decode(request.body) as Map<String, dynamic>,
+    );
+    return prayerTimes;
+  }
+
+  @override
+  Future<PrayerTimesModel?> getPrayerTimesByLocation({
+    required String latitude,
+    required String longitude,
+    required String date,
+    String days = '30',
+  }) async {
+    final request = await http.get(
+      Uri.parse(
+        '${AppConstants.baseURL}/timesFromCoordinates?lat=$latitude&lng=$longitude&date=$date&days=$days&timezoneOffset=180',
       ),
     );
     final prayerTimes = PrayerTimesModel.fromJson(
