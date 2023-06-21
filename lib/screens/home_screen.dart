@@ -383,80 +383,34 @@ class PrayerTimeCard extends StatelessWidget {
 
 class FindRemainingTimeNotifier extends StateNotifier<List<List<String>>> {
   FindRemainingTimeNotifier(super.state);
-  Duration nextTime = const Duration();
+  Duration? nextTime;
 
   int? lowestNegativeIndex = -1;
   Duration? lowestNegativeDuration;
 
-  void checkTimes() {
+  Duration? checkTimes() {
+    // get current time and format as hh:mm
     final currentTime = DateFormat('HH:mm').format(DateTime.now());
     final durationNow = Duration(
       hours: int.parse(currentTime.split(':')[0]),
       minutes: int.parse(currentTime.split(':')[1]),
     );
 
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < state.first.length; i++) {
       final durations = Duration(
-        hours: int.parse(state[0][i].split(':')[0]),
-        minutes: int.parse(state[0][i].split(':')[1]),
+        hours: int.parse(
+          state.first[i].split(':')[0],
+        ),
+        minutes: int.parse(
+          state.first[i].split(':')[1],
+        ),
       );
 
       final difference = durations - durationNow;
 
-      if (difference.isNegative) {
-        if (lowestNegativeDuration == null ||
-            difference <
-                (lowestNegativeDuration ?? const Duration(seconds: 10))) {
-          lowestNegativeDuration = difference;
-          lowestNegativeIndex = i;
-        }
-      }
+      nextTime = difference;
     }
-
-    if (lowestNegativeIndex != -1) {
-      // Update the index to the lowest negative duration
-      print('Lowest negative duration found at index: $lowestNegativeIndex');
-    } else {
-      print('No negative durations found.');
-    }
-
-    // void checkTimes() {
-    //   // get current time and format as hh:mm
-    //   final currentTime = DateFormat('HH:mm').format(DateTime.now());
-    //   final durationNow = Duration(
-    //     hours: int.parse(currentTime.split(':')[0]),
-    //     minutes: int.parse(currentTime.split(':')[1]),
-    //   );
-
-    //   for (var i = 0; i < (state.length); i++) {
-    //     final durations = Duration(
-    //       hours: int.parse(
-    //         state[0][i].split(':')[0],
-    //       ),
-    //       minutes: int.parse(
-    //         state[0][i].split(':')[1],
-    //       ),
-    //     );
-
-    //     final difference = durations - durationNow;
-    //     nextTime = difference;
-
-    //     if (difference.isNegative) {
-    //       final nextDayDurations = Duration(
-    //         hours: int.parse(
-    //           state[1][0].split(':')[0],
-    //         ),
-    //         minutes: int.parse(
-    //           state[1][0].split(':')[1],
-    //         ),
-    //       );
-
-    //       final dif = nextDayDurations - durationNow;
-    //       nextTime = dif;
-    //     } else {
-    //       nextTime = difference;
-    //     }
-    //   }
+    return nextTime;
   }
 }
 
@@ -546,9 +500,11 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
   void initState() {
     super.initState();
     // checkTimes();
-    ref.read(findRemainingTimeProvider(widget.times).notifier).checkTimes();
+    nextTime =
+        ref.read(findRemainingTimeProvider(widget.times).notifier).checkTimes();
     getRemainingTime(
-      ref.read(findRemainingTimeProvider(widget.times).notifier).nextTime,
+      ref.read(findRemainingTimeProvider(widget.times).notifier).nextTime ??
+          const Duration(seconds: 10),
     );
     _timer =
         Timer.periodic(nextTime ?? const Duration(seconds: 10), (Timer timer) {
@@ -561,7 +517,8 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
           nextTime ??
               ref
                   .read(findRemainingTimeProvider(widget.times).notifier)
-                  .nextTime,
+                  .nextTime ??
+              const Duration(seconds: 10),
         ),
       ),
     );
