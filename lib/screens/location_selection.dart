@@ -259,6 +259,7 @@ class LocationSelectionScreenState
                               hintText: 'Select District',
                             ),
                           ),
+                          
                           selectedItem: selectedCity,
                           popupProps: const PopupProps.modalBottomSheet(
                             showSearchBox: true,
