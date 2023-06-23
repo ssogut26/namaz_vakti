@@ -24,7 +24,7 @@ class CurrentTimeNotifier extends StateNotifier<int> {
     state = timeToMinutes(
       DateFormat('HH:mm').format(DateTime.now()),
     );
-    print(state);
+
     return state;
   }
 }
@@ -227,15 +227,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               // we need to set itemCount to 6
                               itemCount: 6,
                               itemBuilder: (context, index) {
-                                final currentIndex = ref
-                                    .read(
-                                      findRemainingTimeProvider(
-                                        prayerTimesByDay ?? [],
-                                      ).notifier,
-                                    )
-                                    .lowestNegativeIndex;
                                 return PrayerTimeCard(
-                                  currentIndex: currentIndex,
                                   times: prayerTimesByDay ?? [],
                                   index: index,
                                 );
@@ -312,17 +304,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class PrayerTimeCard extends StatelessWidget {
+class PrayerTimeCard extends ConsumerWidget {
   const PrayerTimeCard({
     required this.times,
     required this.index,
-    this.currentIndex,
     super.key,
   });
 
   final List<List<String>>? times;
   final int index;
-  final int? currentIndex;
 
   Widget times1() {
     switch (index) {
@@ -359,11 +349,11 @@ class PrayerTimeCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final remainingTime =
+        ref.read(findRemainingTimeProvider(times ?? []).notifier);
     return Card(
-      color: currentIndex == index
-          ? Theme.of(context).colorScheme.secondary
-          : Theme.of(context).colorScheme.surface,
+      color: remainingTime.cardColor,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: ListTile(
@@ -383,34 +373,91 @@ class PrayerTimeCard extends StatelessWidget {
 
 class FindRemainingTimeNotifier extends StateNotifier<List<List<String>>> {
   FindRemainingTimeNotifier(super.state);
-  Duration? nextTime;
 
-  int? lowestNegativeIndex = -1;
-  Duration? lowestNegativeDuration;
+  int index = 0;
+  int time = 0;
+  int nextTime = 0;
+  Duration? remainingTime;
+  String? nextPrayerTime;
+  int timeToMinutes(String time) {
+    final parts = time.split(':');
+    final hours = int.parse(parts[0]);
+    final minutes = int.parse(parts[1]);
+    return hours * 60 + minutes;
+  }
 
-  Duration? checkTimes() {
-    // get current time and format as hh:mm
-    final currentTime = DateFormat('HH:mm').format(DateTime.now());
-    final durationNow = Duration(
-      hours: int.parse(currentTime.split(':')[0]),
-      minutes: int.parse(currentTime.split(':')[1]),
-    );
+  Duration? findRemainingTime() {
+    final currentTime = DateFormat('HH:mm').format(DateTime.now().toLocal());
+    time = timeToMinutes(currentTime);
 
-    for (var i = 0; i < state.first.length; i++) {
-      final durations = Duration(
-        hours: int.parse(
-          state.first[i].split(':')[0],
-        ),
-        minutes: int.parse(
-          state.first[i].split(':')[1],
-        ),
-      );
+    for (index = 0; index < state[0].length;) {
+      nextTime = timeToMinutes(state[0][index]);
+      var checkTime = nextTime - time;
+      if (checkTime.isNegative && index == 5) {
+        index = 0;
+        nextTime = timeToMinutes(state[1][0]);
+        if (time < 1440) {
+          checkTime = 1440 - time + nextTime;
+        } else {
+          checkTime = nextTime - time;
+        }
+        remainingTime = Duration(minutes: checkTime);
 
-      final difference = durations - durationNow;
-
-      nextTime = difference;
+        break;
+      } else if (checkTime.isNegative) {
+        index++;
+      } else {
+        remainingTime = Duration(minutes: checkTime);
+      }
     }
-    return nextTime;
+
+    return remainingTime;
+  }
+
+  String getNextPrayerTime() {
+    switch (index) {
+      case 0:
+        nextPrayerTime = 'Fajr in';
+      case 1:
+        nextPrayerTime = 'Sunrise in';
+      case 2:
+        nextPrayerTime = 'Dhuhr in';
+      case 3:
+        nextPrayerTime = 'Asr in';
+      case 4:
+        nextPrayerTime = 'Maghrib in';
+      case 5:
+        nextPrayerTime = 'Isha in';
+      default:
+        nextPrayerTime = 'No Prayer Time';
+    }
+    return nextPrayerTime ?? '';
+  }
+
+  int getRemainingTime() {
+    final difference = remainingTime;
+    final hours = difference?.inHours.remainder(24);
+    final minutes = difference?.inMinutes.remainder(60);
+    final seconds = difference?.inSeconds.remainder(60);
+    return (hours ?? 0) * 3600 + (minutes ?? 0) * 60 + (seconds ?? 0);
+  }
+
+  Color? cardColor; // Default color for the card
+
+  Color getCardColor() {
+    if (remainingTime == null) {
+      return Colors.red;
+    } else if (remainingTime != null && getRemainingTime() > 600) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
+  }
+
+  void updateCardColor() {
+    if (remainingTime != null) {
+      cardColor = getCardColor();
+    }
   }
 }
 
@@ -438,88 +485,26 @@ class NextPrayerTimeCard extends ConsumerStatefulWidget {
 class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
     with TickerProviderStateMixin {
   Timer? _timer;
-  Duration? nextTime;
+  // Duration? nextTime;
   AnimationController? _controller;
-
-  void checkTimes() {
-    // get current time and format as hh:mm
-    final currentTime = DateFormat('HH:mm').format(DateTime.now());
-    final durationNow = Duration(
-      hours: int.parse(currentTime.split(':')[0]),
-      minutes: int.parse(currentTime.split(':')[1]),
-    );
-
-    for (var i = 0; i < 6; i++) {
-      final durations = Duration(
-        hours: int.parse(
-          widget.times[0][i].split(':')[0],
-        ),
-        minutes: int.parse(
-          widget.times[0][i].split(':')[1],
-        ),
-      );
-
-      final difference = durations - durationNow;
-      nextTime = difference;
-
-      if (difference.isNegative) {
-        final nextDayDurations = Duration(
-          hours: int.parse(
-            widget.times[1][0].split(':')[0],
-          ),
-          minutes: int.parse(
-            widget.times[1][0].split(':')[1],
-          ),
-        );
-
-        final dif = nextDayDurations - durationNow;
-        nextTime = dif;
-      } else {
-        nextTime = difference;
-      }
-      nextTime = difference;
-    }
-    nextTime ??= const Duration(seconds: 10);
-  }
-
-  int getRemainingTime(Duration endTime) {
-    final difference = endTime;
-
-    if (difference.isNegative) {
-      setState(() {});
-    }
-
-    final hours = difference.inHours.remainder(24);
-    final minutes = difference.inMinutes.remainder(60);
-    final seconds = difference.inSeconds.remainder(60);
-
-    return hours * 3600 + minutes * 60 + seconds;
-  }
+  int countTimer = 0;
+  String nextPrayerTime = '';
 
   @override
   void initState() {
     super.initState();
-    // checkTimes();
-    nextTime =
-        ref.read(findRemainingTimeProvider(widget.times).notifier).checkTimes();
-    getRemainingTime(
-      ref.read(findRemainingTimeProvider(widget.times).notifier).nextTime ??
-          const Duration(seconds: 10),
-    );
-    _timer =
-        Timer.periodic(nextTime ?? const Duration(seconds: 10), (Timer timer) {
+    final remainingTime =
+        ref.read(findRemainingTimeProvider(widget.times).notifier);
+    remainingTime.findRemainingTime();
+    nextPrayerTime = remainingTime.getNextPrayerTime();
+    countTimer = remainingTime.getRemainingTime();
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
       setState(() {});
     });
     _controller = AnimationController(
       vsync: this,
       duration: Duration(
-        seconds: getRemainingTime(
-          nextTime ??
-              ref
-                  .read(findRemainingTimeProvider(widget.times).notifier)
-                  .nextTime ??
-              const Duration(seconds: 10),
-        ),
+        seconds: remainingTime.getRemainingTime(),
       ),
     );
 
@@ -535,24 +520,30 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
 
   @override
   Widget build(BuildContext context) {
+    final remainingTime =
+        ref.read(findRemainingTimeProvider(widget.times).notifier);
     return Card(
-      child: Column(
-        children: [
-          Countdown(
-            animation: StepTween(
-              begin: getRemainingTime(nextTime ?? const Duration(seconds: 10)),
-              end: 0,
-            ).animate(
-              _controller ??
-                  AnimationController(
-                    vsync: this,
-                    duration: const Duration(
-                      seconds: 10,
+      child: SizedBox(
+        height: 100,
+        child: Column(
+          children: [
+            Text(nextPrayerTime),
+            Countdown(
+              animation: StepTween(
+                begin: countTimer,
+                end: 0,
+              ).animate(
+                _controller ??
+                    AnimationController(
+                      vsync: this,
+                      duration: const Duration(
+                        seconds: 10,
+                      ),
                     ),
-                  ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
