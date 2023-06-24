@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:namaz_vakti/models/countries.dart';
-import 'package:namaz_vakti/screens/home_screen.dart';
+import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/services/api.dart';
 import 'package:permission_handler/permission_handler.dart';
 
