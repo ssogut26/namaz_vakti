@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:namaz_vakti/screens/location_selection.dart';
+import 'package:namaz_vakti/screens/location/location_selection.dart';
 
 class NamazVaktiApp extends StatelessWidget {
   const NamazVaktiApp({super.key});

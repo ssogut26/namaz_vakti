@@ -9,107 +9,133 @@ import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/services/api.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class LocationNotifier extends ChangeNotifier {
-  String? _country;
-  String? get country => _country;
-  set country(String? value) {
-    _country = value;
-    notifyListeners();
-  }
+class CountryNotifier extends StateNotifier<String> {
+  CountryNotifier(
+    super._country,
+  );
 
-  String? _city;
+  String _country = '';
 
-  String? get city => _city;
+  String get setCountry => _country;
 
-  set city(String? value) {
-    _city = value;
-    notifyListeners();
-  }
-
-  String? _district;
-
-  String? get district => _district;
-
-  set district(String? value) {
-    _district = value;
-    notifyListeners();
+  set setCountry(String country) {
+    _country = country;
   }
 }
 
-final locationProvider = ChangeNotifierProvider((ref) => LocationNotifier());
+final countryProvider = StateNotifierProvider<CountryNotifier, String>(
+  (ref) => CountryNotifier(''),
+);
+
+class CityNotifier extends StateNotifier<String> {
+  CityNotifier(
+    super._city,
+  );
+
+  String _city = '';
+
+  String get setCity => _city;
+
+  set setCity(String city) {
+    _city = city;
+  }
+}
+
+final cityProvider = StateNotifierProvider<CityNotifier, String>(
+  (ref) => CityNotifier(''),
+);
+
+class DistrictNotifier extends StateNotifier<String> {
+  DistrictNotifier(
+    super._district,
+  );
+
+  String _district = '';
+
+  String get setDistrict => _district;
+
+  set setDistrict(String district) {
+    _district = district;
+  }
+}
+
+final districtProvider = StateNotifierProvider<DistrictNotifier, String>(
+  (ref) => DistrictNotifier(''),
+);
 
 final countrySelectionProvider = FutureProvider(
   (ref) async {
     final countries = await ApiService.instance.getCountries();
-
     return countries;
   },
 );
 
 final citySelectionProvider = FutureProvider((ref) async {
-  final country = ref.watch(locationProvider).country;
-  final cities = await ApiService.instance.getCities(country ?? '');
+  final country = ref.watch(countryProvider.notifier)._country;
+  if (country == '') {
+    return null;
+  }
+  final cities = await ApiService.instance.getCities(country);
   return cities;
 });
 
 final districtSelectionProvider = FutureProvider((ref) async {
-  final country = ref.watch(locationProvider).country;
-  final city = ref.watch(locationProvider).city;
-  final districts =
-      await ApiService.instance.getDistrict(country ?? '', city ?? '');
-
+  final country = ref.watch(countryProvider.notifier)._country;
+  final city = ref.watch(cityProvider.notifier)._city;
+  final districts = await ApiService.instance.getDistrict(country, city);
   return districts;
 });
 
 final getPrayerTimesWithSelection =
     FutureProvider.family.autoDispose((ref, String dates) async {
-  final country = ref.watch(locationProvider).country;
-  final city = ref.watch(locationProvider).city;
-  final district = ref.watch(locationProvider).district;
-  if (country != null && city != null && district != null) {
+  final country = ref.watch(countryProvider.notifier)._country;
+  final city = ref.watch(cityProvider.notifier)._city;
+  final district = ref.watch(districtProvider.notifier)._district;
+  if (country == '' || city == '' || district == '') {
+    return null;
+  } else {
     final prayerTimes = await ApiService.instance.getPrayerTimes(
       country,
       city,
       district,
       dates,
     );
-
     return prayerTimes;
-  } else if (country == '' && city == '' && district == '') {
-    return null;
-  } else {
-    return null;
   }
 });
 
 final getPrayerTimesWithLocation =
     FutureProvider.family.autoDispose((ref, String dates) async {
-  final locator = ref.watch(locatorProvider);
+  final locator = ref.watch(locatorProvider.notifier)._position;
   final prayerTimes = await ApiService.instance.getPrayerTimesByLocation(
-    latitude: locator.position?.latitude.toString() ?? '',
-    longitude: locator.position?.longitude.toString() ?? '',
+    latitude: locator?.latitude.toString() ?? '',
+    longitude: locator?.longitude.toString() ?? '',
     date: dates,
   );
   return prayerTimes;
 });
 
-class LocatorNotifier extends ChangeNotifier {
+class LocatorNotifier extends StateNotifier<bool> {
+  LocatorNotifier(super.isLocationEnabled);
+
   bool _isLocationEnabled = false;
   bool get isLocationEnabled => _isLocationEnabled;
   set isLocationEnabled(bool value) {
     _isLocationEnabled = value;
-    notifyListeners();
   }
 
   Position? _position;
   Position? get position => _position;
   set position(Position? value) {
     _position = value;
-    notifyListeners();
   }
 }
 
-final locatorProvider = ChangeNotifierProvider((ref) => LocatorNotifier());
+final locatorProvider = StateNotifierProvider(
+  (ref) => LocatorNotifier(
+    false,
+  ),
+);
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
   const LocationSelectionScreen({super.key});
@@ -120,15 +146,13 @@ class LocationSelectionScreen extends ConsumerStatefulWidget {
 
 class LocationSelectionScreenState
     extends ConsumerState<LocationSelectionScreen> {
-  String? selectedCountry;
-  String? selectedCity;
-  String? selectedDistrict;
-
   @override
   Widget build(BuildContext context) {
     final countrySelection = ref.watch(countrySelectionProvider);
-
-    final location = ref.watch(locationProvider);
+    final countryP = ref.watch(countryProvider.notifier);
+    final cityP = ref.watch(cityProvider.notifier);
+    final districtP = ref.watch(districtProvider.notifier);
+    // final location = ref.watch(locationProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -150,7 +174,7 @@ class LocationSelectionScreenState
                         hintText: 'Select country',
                       ),
                     ),
-                    selectedItem: selectedCountry,
+                    selectedItem: countryP._country,
                     popupProps: const PopupProps.modalBottomSheet(
                       showSearchBox: true,
                       searchFieldProps: TextFieldProps(
@@ -189,12 +213,12 @@ class LocationSelectionScreenState
                       );
                     },
                     onChanged: (value) {
-                      ref.watch(locationProvider).country = value;
-                      ref.watch(locationProvider).city = null;
-                      ref.watch(locationProvider).district = null;
+                      ref.read(countryProvider.notifier);
+                      ref.read(cityProvider.notifier).setCity = '';
+                      ref.read(districtProvider.notifier).setDistrict = '';
                     },
                   ),
-                  (location._country == null || location._country == '')
+                  (countryP._country == '')
                       ? const SizedBox.shrink()
                       : DropdownSearch<String?>(
                           dropdownDecoratorProps: const DropDownDecoratorProps(
@@ -203,7 +227,7 @@ class LocationSelectionScreenState
                               hintText: 'Select City',
                             ),
                           ),
-                          selectedItem: selectedCity,
+                          selectedItem: cityP._city,
                           popupProps: const PopupProps.modalBottomSheet(
                             showSearchBox: true,
                             searchFieldProps: TextFieldProps(
@@ -221,7 +245,7 @@ class LocationSelectionScreenState
                             return citySelection.when(
                               data: (cityList) {
                                 final filteredCities = cityList
-                                    .where(
+                                    ?.where(
                                       (cities) => cities
                                           .toString()
                                           .toLowerCase()
@@ -229,7 +253,7 @@ class LocationSelectionScreenState
                                     )
                                     .toList();
                                 final cityNameList = <String>[];
-                                for (final city in filteredCities) {
+                                for (final city in filteredCities ?? []) {
                                   cityNameList.add(city as String);
                                 }
                                 return cityNameList;
@@ -243,14 +267,13 @@ class LocationSelectionScreenState
                             );
                           },
                           onChanged: (value) {
-                            ref.watch(locationProvider).city = value;
-                            ref.watch(locationProvider).district = null;
+                            ref.read(cityProvider.notifier).setCity =
+                                value ?? '';
+                            ref.read(districtProvider.notifier).setDistrict =
+                                '';
                           },
                         ),
-                  (location._country == null ||
-                          location._country == '' ||
-                          location._city == null ||
-                          location._city == '')
+                  (countryP._country == '' || cityP._city == '')
                       ? const SizedBox.shrink()
                       : DropdownSearch<String?>(
                           dropdownDecoratorProps: const DropDownDecoratorProps(
@@ -259,7 +282,7 @@ class LocationSelectionScreenState
                               hintText: 'Select District',
                             ),
                           ),
-                          selectedItem: selectedCity,
+                          selectedItem: districtP._district,
                           popupProps: const PopupProps.modalBottomSheet(
                             showSearchBox: true,
                             searchFieldProps: TextFieldProps(
@@ -300,7 +323,8 @@ class LocationSelectionScreenState
                             );
                           },
                           onChanged: (value) {
-                            ref.watch(locationProvider).district = value;
+                            ref.read(districtProvider.notifier).setDistrict =
+                                value ?? '';
                           },
                         ),
                 ],
@@ -320,17 +344,17 @@ class LocationSelectionScreenState
                   // The OS restricts access, for example because of parental controls.
                   final location = await Geolocator.getCurrentPosition();
 
-                  ref.read(locatorProvider)._position = location;
+                  ref.read(locatorProvider.notifier)._position = location;
                   if (location != null) {
                     await Navigator.of(context).push(
-                      MaterialPageRoute(
+                      MaterialPageRoute<void>(
                         builder: (context) => const HomeScreen(
                           isLocation: true,
                         ),
                       ),
                     );
                   } else {
-                    await showDialog(
+                    await showDialog<void>(
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Location Error'),
@@ -356,10 +380,10 @@ class LocationSelectionScreenState
                 } else {
                   final location = await Geolocator.getCurrentPosition();
 
-                  ref.read(locatorProvider)._position = location;
+                  ref.read(locatorProvider.notifier)._position = location;
 
                   await Navigator.of(context).push(
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (context) => const HomeScreen(
                         isLocation: true,
                       ),
@@ -381,11 +405,13 @@ class LocationSelectionScreenState
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.blue,
               ),
-              onPressed: (location.district?.isEmpty ?? true)
+              onPressed: (countryP._country == '' ||
+                      cityP._city == '' ||
+                      districtP._district == '')
                   ? null
                   : () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(
+                        MaterialPageRoute<void>(
                           builder: (context) => const HomeScreen(
                             isLocation: false,
                           ),

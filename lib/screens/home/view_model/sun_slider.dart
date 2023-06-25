@@ -39,7 +39,7 @@ class _SunSliderState extends ConsumerState<SunSlider> {
     final prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
     final sunrise = timeToMinutes(prayerTimes?[0][1] ?? ''); // sunrise
     final maghrib = timeToMinutes(prayerTimes?[0][4] ?? ''); // Maghrib
-    final time = ref.watch(currentTimeProvider).time;
+    final time = ref.watch(currentTimeProvider.notifier).currentTime;
     return Padding(
       padding: const EdgeInsets.all(2),
       child: SizedBox(

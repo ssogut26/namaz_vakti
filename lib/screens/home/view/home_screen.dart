@@ -1,30 +1,24 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
+import 'package:namaz_vakti/screens/home/prayer_times_mixin.dart';
 import 'package:namaz_vakti/screens/home/view_model/index.dart';
-import 'package:namaz_vakti/screens/location_selection.dart';
+import 'package:namaz_vakti/screens/location/location_selection.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 
 // get part
 part '../providers/home_providers.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key, this.isLocation});
 
   final bool? isLocation;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // ignore: prefer_final_locals
-    final prayerTimes = (widget.isLocation ?? false)
+    final prayerTimes = (isLocation ?? false)
         ? ref.watch(
             getPrayerTimesWithLocation(
               DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -113,46 +107,22 @@ class PrayerTimesView extends ConsumerStatefulWidget {
       _PrayerTimesViewState();
 }
 
-class _PrayerTimesViewState extends ConsumerState<PrayerTimesView> {
-  List<List<String>>? prayerTimes;
-  Duration? remainingTime;
-  String? nextPrayerTime;
-  int? upcomingTime;
-  @override
-  void initState() {
-    prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
-    final providerRemainingTime =
-        ref.read(findRemainingTimeProvider(prayerTimes ?? []).notifier);
-    remainingTime = providerRemainingTime.findRemainingTime();
-    nextPrayerTime = providerRemainingTime.getNextPrayerTime(
-      providerRemainingTime.index,
-    );
-    upcomingTime = providerRemainingTime.nextPrayerTimeIndex;
-    super.initState();
-  }
-
+class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
+    with PrayerTimesViewMixin {
   @override
   Widget build(BuildContext context) {
-    final prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
-    final remainingTime = ref.read(
+    final prayerTimes = ref.watch(prayerTimesProvider.notifier).prayerTimes;
+    final remainingTime = ref.watch(
       findRemainingTimeProvider(
         prayerTimes ?? [],
       ).notifier,
     );
     final date = ref.watch(dateProvider.notifier).getDate();
     final maghrib = timeToMinutes(prayerTimes?[0][4] ?? '');
-    final time = ref.watch(currentTimeProvider)._time =
-        timeToMinutes(DateFormat('HH:mm').format(DateTime.now()));
+    final time = ref.watch(currentTimeProvider.notifier).currentTime;
     return PageView.builder(
-      onPageChanged: (index) {
-        ref.read(dateProvider.notifier).updateDate(
-              DateTime.now().add(
-                Duration(days: index),
-              ),
-            );
-        ref.read(pageIndexProvider.notifier).pageIndex = index;
-      },
-      itemCount: ref.read(prayerTimesProvider.notifier).prayerTimes?.length,
+      onPageChanged: onPageChanged,
+      itemCount: prayerTimes?.length,
       itemBuilder: (context, pageIndex) {
         return Column(
           children: [
@@ -200,7 +170,7 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView> {
                 if (pageIndex != 0)
                   const SizedBox.shrink()
                 else
-                  time < maghrib ? const SunSlider() : const MoonSlider()
+                  (time ?? 0) < maghrib ? const SunSlider() : const MoonSlider()
               ],
             ),
           ],

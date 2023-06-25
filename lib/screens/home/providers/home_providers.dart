@@ -2,32 +2,19 @@ part of '../view/home_screen.dart';
 
 final homeScreenProvider = Provider<HomeScreen>((ref) => const HomeScreen());
 
-class CurrentTimeNotifier extends ChangeNotifier {
-  CurrentTimeNotifier() {
-    _updateTime(); // Update the time initially
-    _startTimer(); // Start the timer to update the time periodically
-  }
-  int? _time;
+class CurrentTimeNotifier extends StateNotifier<int> {
+  CurrentTimeNotifier(
+    this.currentTime,
+  ) : super(currentTime);
 
-  int get time => _time ?? 0;
-
-  void _updateTime() {
-    // Get the current time and set it as the new time value
-    _time = DateTime.now().millisecondsSinceEpoch;
-    notifyListeners();
-  }
-
-  void _startTimer() {
-    // Start a timer to update the time every second
-    const duration = Duration(seconds: 1);
-    Timer.periodic(duration, (_) {
-      _updateTime();
-    });
-  }
+  int currentTime = timeToMinutes(DateFormat('HH:mm').format(DateTime.now()));
 }
 
 final currentTimeProvider =
-    ChangeNotifierProvider((ref) => CurrentTimeNotifier());
+    StateNotifierProvider<CurrentTimeNotifier, int?>((ref) {
+  return CurrentTimeNotifier(
+      timeToMinutes(DateFormat('HH:mm').format(DateTime.now())));
+});
 
 class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
   PrayerTimesNotifier(

@@ -37,7 +37,7 @@ class _MoonSliderState extends ConsumerState<MoonSlider> {
     final nextDaySunrise = timeToMinutes(
       prayerTimes?[1][1] ?? '',
     ); // next day sunrise
-    final time = ref.watch(currentTimeProvider).time;
+    final time = ref.watch(currentTimeProvider.notifier).currentTime;
     return Padding(
       padding: const EdgeInsets.all(2),
       child: SizedBox(
