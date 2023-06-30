@@ -80,15 +80,20 @@ class ApiService extends Api {
     String date, {
     String days = '30',
   }) async {
-    final request = await http.get(
-      Uri.parse(
-        '${AppConstants.baseURL}/timesFromPlace?country=$countryId&region=$cityId&city=$district&date=$date&days=$days&timezoneOffset=180',
-      ),
-    );
-    final prayerTimes = PrayerTimesModel.fromJson(
-      json.decode(request.body) as Map<String, dynamic>,
-    );
-    return prayerTimes;
+    try {
+      final request = await http.get(
+        Uri.parse(
+          '${AppConstants.baseURL}/timesFromPlace?country=$countryId&region=$cityId&city=$district&date=$date&days=$days&timezoneOffset=180',
+        ),
+      );
+      final prayerTimes = PrayerTimesModel.fromJson(
+        json.decode(request.body) as Map<String, dynamic>,
+      );
+      return prayerTimes;
+    } catch (e) {
+      print(e);
+    }
+    return null;
   }
 
   @override
