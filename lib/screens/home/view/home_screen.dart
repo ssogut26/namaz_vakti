@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:namaz_vakti/screens/home/prayer_times_mixin.dart';
 import 'package:namaz_vakti/screens/home/view_model/index.dart';
-import 'package:namaz_vakti/screens/location/location_selection.dart';
+import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 
 // get part
@@ -170,7 +170,7 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
                 if (pageIndex != 0)
                   const SizedBox.shrink()
                 else
-                  (time ?? 0) < maghrib ? const SunSlider() : const MoonSlider()
+                  time < maghrib ? const SunSlider() : const MoonSlider()
               ],
             ),
           ],

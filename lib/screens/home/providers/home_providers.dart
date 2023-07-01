@@ -13,7 +13,7 @@ class CurrentTimeNotifier extends StateNotifier<int> {
 final currentTimeProvider =
     StateNotifierProvider<CurrentTimeNotifier, int?>((ref) {
   return CurrentTimeNotifier(
-      timeToMinutes(DateFormat('HH:mm').format(DateTime.now())));
+      timeToMinutes(DateFormat('HH:mm').format(DateTime.now())),);
 });
 
 class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
