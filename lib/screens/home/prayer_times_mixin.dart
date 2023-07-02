@@ -23,11 +23,13 @@ mixin PrayerTimesViewMixin on ConsumerState<PrayerTimesView> {
   }
 
   void onPageChanged(int index) {
-    ref.read(dateProvider.notifier).updateDate(
-          DateTime.now().add(
-            Duration(days: index),
-          ),
-        );
-    ref.read(pageIndexProvider.notifier).pageIndex = index;
+    setState(() {
+      ref.read(dateProvider.notifier).updateDate(
+            DateTime.now().add(
+              Duration(days: index),
+            ),
+          );
+      ref.read(pageIndexProvider.notifier).pageIndex = index;
+    });
   }
 }

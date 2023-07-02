@@ -5,7 +5,9 @@ import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:namaz_vakti/screens/home/prayer_times_mixin.dart';
 import 'package:namaz_vakti/screens/home/view_model/index.dart';
 import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
+import 'package:namaz_vakti/screens/selection/selection_screen.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // get part
 part '../providers/home_providers.dart';
@@ -66,19 +68,20 @@ class HomeScreen extends ConsumerWidget {
   ) {
     return AppBar(
       leading: IconButton(
-        onPressed: () {
-          Navigator.of(context).pop();
+        onPressed: () async {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.clear();
+          await Navigator.of(context).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (context) => const SelectionScreenView(),
+            ),
+          );
         },
         icon: const Icon(Icons.location_on),
       ),
       title: prayerTimes.when(
         data: (i) {
-          return Column(
-            children: [
-              Text(i?.place?.city ?? ''),
-              Text(i?.times?.keys.first ?? ''),
-            ],
-          );
+          return Text(i?.place?.city ?? '');
         },
         error: (error, stacktrace) {
           return Text(error.toString());
@@ -120,6 +123,7 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
     final date = ref.watch(dateProvider.notifier).getDate();
     final maghrib = timeToMinutes(prayerTimes?[0][4] ?? '');
     final time = ref.watch(currentTimeProvider.notifier).currentTime;
+
     return PageView.builder(
       onPageChanged: onPageChanged,
       itemCount: prayerTimes?.length,
@@ -131,7 +135,10 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
                 height: MediaQuery.of(context).size.height * 0.20,
                 child: Card(
                   child: Center(
-                    child: Text(date),
+                    child: Text(
+                      date,
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
                   ),
                 ),
               )

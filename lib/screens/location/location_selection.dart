@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/models/countries.dart';
 import 'package:namaz_vakti/screens/location/location_mixin.dart';
-import 'package:namaz_vakti/screens/location/location_model.dart';
+import 'package:namaz_vakti/screens/location/models/location_model.dart';
 import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
@@ -29,24 +29,9 @@ class LocationSelectionScreenState
           children: [
             const LocationRequirements(),
             SizedBox(height: MediaQuery.of(context).size.height * 0.4),
-            TextButton(
-              onPressed: getPrayerTimesWithLocationFunction,
-              child: const Text('Use my location'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                fixedSize: Size(
-                  MediaQuery.of(context).size.width,
-                  50,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blue,
-              ),
+            AppElevatedButton(
               onPressed: getPrayerTimesButton,
-              child: const Text('Get Prayer Times'),
+              text: 'Get Prayer Times',
             )
           ],
         ),
@@ -55,48 +40,76 @@ class LocationSelectionScreenState
   }
 }
 
-class LocationRequirements extends ConsumerWidget {
-  const LocationRequirements({
+class AppElevatedButton extends StatelessWidget {
+  const AppElevatedButton({
+    required this.onPressed,
+    required this.text,
     super.key,
   });
 
+  final void Function()? onPressed;
+  final String? text;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size(
+          MediaQuery.of(context).size.width,
+          50,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(2),
+        ),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+      ),
+      onPressed: onPressed,
+      child: Text(text ?? ''),
+    );
+  }
+}
+
+class LocationRequirements extends ConsumerStatefulWidget {
+  const LocationRequirements({super.key});
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _LocationRequirementsState();
+}
+
+class _LocationRequirementsState extends ConsumerState<LocationRequirements>
+    with LocationRequirementsMixin {
+  @override
+  Widget build(BuildContext context) {
     final locationValues = ref.watch(locationProvider.notifier);
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.3,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const CountrySelectionWidget(),
+          CountrySelectionWidget(callBack: updateCountry),
           (locationValues.state.country == null ||
                   locationValues.state.country == '')
               ? const SizedBox.shrink()
-              : const CitySelectionWidget(),
+              : CitySelectionWidget(callBack: updateCity),
           (locationValues.state.country == null ||
                   locationValues.state.country == '' ||
                   locationValues.state.city == null ||
                   locationValues.state.city == '')
               ? const SizedBox.shrink()
-              : const DistrictSelectionWidget(),
+              : DistrictSelectionWidget(callBack: updateDistrict),
         ],
       ),
     );
   }
 }
 
-class DistrictSelectionWidget extends ConsumerStatefulWidget {
-  const DistrictSelectionWidget({super.key});
+class DistrictSelectionWidget extends ConsumerWidget {
+  const DistrictSelectionWidget({required this.callBack, super.key});
+  final void Function(String?)? callBack;
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _DistrictSelectionWidgetState();
-}
-
-class _DistrictSelectionWidgetState
-    extends ConsumerState<DistrictSelectionWidget> with DistrictMixin {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final locationValues = ref.watch(locationProvider.notifier);
     final districtSelection = ref.watch(
       districtSelectionProvider(
@@ -118,8 +131,8 @@ class _DistrictSelectionWidgetState
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            labelText: 'City',
-            hintText: 'Select city',
+            labelText: 'District',
+            hintText: 'Select District',
           ),
         ),
         searchDelay: Duration(milliseconds: 300),
@@ -148,22 +161,17 @@ class _DistrictSelectionWidgetState
           ],
         );
       },
-      onChanged: updateDistrict,
+      onChanged: callBack,
     );
   }
 }
 
-class CitySelectionWidget extends ConsumerStatefulWidget {
-  const CitySelectionWidget({super.key});
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _CitySelectionWidgetState();
-}
+class CitySelectionWidget extends ConsumerWidget {
+  const CitySelectionWidget({required this.callBack, super.key});
+  final void Function(String?)? callBack;
 
-class _CitySelectionWidgetState extends ConsumerState<CitySelectionWidget>
-    with CityMixin {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final locationValues = ref.watch(locationProvider.notifier);
     final citySelection =
         ref.watch(citySelectionProvider(locationValues.state.country ?? ''));
@@ -210,22 +218,17 @@ class _CitySelectionWidgetState extends ConsumerState<CitySelectionWidget>
           ],
         );
       },
-      onChanged: updateCity,
+      onChanged: callBack,
     );
   }
 }
 
-class CountrySelectionWidget extends ConsumerStatefulWidget {
-  const CountrySelectionWidget({super.key});
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      CountrySelectionWidgetState();
-}
+class CountrySelectionWidget extends ConsumerWidget {
+  const CountrySelectionWidget({required this.callBack, super.key});
+  final void Function(String?)? callBack;
 
-class CountrySelectionWidgetState extends ConsumerState<CountrySelectionWidget>
-    with CountryMixin {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final countrySelection = ref.watch(countrySelectionProvider);
     final locationValues = ref.watch(locationProvider.notifier);
     return DropdownSearch<String?>(
@@ -270,7 +273,7 @@ class CountrySelectionWidgetState extends ConsumerState<CountrySelectionWidget>
           ],
         );
       },
-      onChanged: updateCountry,
+      onChanged: callBack,
     );
   }
 }

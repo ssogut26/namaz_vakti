@@ -2,7 +2,7 @@ part of '../view/home_screen.dart';
 
 final homeScreenProvider = Provider<HomeScreen>((ref) => const HomeScreen());
 
-class CurrentTimeNotifier extends StateNotifier<int> {
+final class CurrentTimeNotifier extends StateNotifier<int> {
   CurrentTimeNotifier(
     this.currentTime,
   ) : super(currentTime);
@@ -13,10 +13,11 @@ class CurrentTimeNotifier extends StateNotifier<int> {
 final currentTimeProvider =
     StateNotifierProvider<CurrentTimeNotifier, int?>((ref) {
   return CurrentTimeNotifier(
-      timeToMinutes(DateFormat('HH:mm').format(DateTime.now())),);
+    timeToMinutes(DateFormat('HH:mm').format(DateTime.now())),
+  );
 });
 
-class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
+final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
   PrayerTimesNotifier(
     this._prayerTimes,
   ) : super(_prayerTimes ?? []);
@@ -34,7 +35,7 @@ final prayerTimesProvider =
   return PrayerTimesNotifier(null);
 });
 
-class PageIndex extends StateNotifier<int> {
+final class PageIndex extends StateNotifier<int> {
   PageIndex(
     this._pageIndex,
   ) : super(_pageIndex ?? 0);
@@ -55,11 +56,11 @@ final dateProvider = StateNotifierProvider<DateNotifier, String>((ref) {
   return DateNotifier();
 });
 
-class DateNotifier extends StateNotifier<String> {
+final class DateNotifier extends StateNotifier<String> {
   DateNotifier() : super(DateFormat('yyyy-MM-dd').format(DateTime.now()));
   String? date;
   void updateDate(DateTime date) {
-    state = DateFormat('yyyy-MM-dd').format(date);
+    state = DateFormat.MMMd().format(date);
   }
 
   String getDate() {
@@ -67,7 +68,8 @@ class DateNotifier extends StateNotifier<String> {
   }
 }
 
-class FindRemainingTimeNotifier extends StateNotifier<List<List<String>>> {
+final class FindRemainingTimeNotifier
+    extends StateNotifier<List<List<String>>> {
   FindRemainingTimeNotifier(super.state);
 
   /// Index of the prayer time in the day

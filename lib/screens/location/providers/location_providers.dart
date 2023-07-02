@@ -2,11 +2,14 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:hive/hive.dart';
-import 'package:namaz_vakti/screens/location/location_model.dart';
+import 'package:namaz_vakti/screens/location/models/location_model.dart';
 import 'package:namaz_vakti/services/api.dart';
 import 'package:namaz_vakti/services/api_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+/// This is the state of the location notifier. It will be used to store the
+/// location values like country, city and district. You can set it with
+/// [copyWith] method.
 class LocationNotifier extends StateNotifier<LocationModel> {
   LocationNotifier(this.locationModel) : super(const LocationModel());
   final LocationModel locationModel;
@@ -24,12 +27,14 @@ class LocationNotifier extends StateNotifier<LocationModel> {
   }
 }
 
+/// This is the provider that will be used to read the location state.
 final locationProvider = StateNotifierProvider(
   (ref) => LocationNotifier(
     const LocationModel(),
   ),
 );
 
+/// This provider using for the pullign the countries from the API.
 final countrySelectionProvider = FutureProvider(
   (ref) async {
     final apiService = ref.read(apiProvider);
@@ -38,6 +43,8 @@ final countrySelectionProvider = FutureProvider(
   },
 );
 
+/// This provider using for the pullign the city from the API. For
+/// working properly, you need to pass the country name as a parameter.
 final citySelectionProvider =
     FutureProvider.family((ref, String? country) async {
   final apiService = ref.read(apiProvider);
@@ -46,17 +53,23 @@ final citySelectionProvider =
   return cities;
 });
 
+/// This provider using for the pullign the district from the API. For
+/// working properly, you need to pass the country name and city name as a
+/// parameter.
 final districtSelectionProvider =
     FutureProvider.family.autoDispose((ref, LocationModel location) async {
   final districts = await ApiService.instance
       .getDistrict(location.country ?? '', location.city ?? '');
-
   return districts;
 });
 
+/// This provider using for the pullign the prayer times from the API. For
+/// working properly, you need to pass the country name, city name,
+/// district name, and date as a parameter.
+
 final getPrayerTimesWithSelection =
     FutureProvider.family.autoDispose((ref, String dates) async {
-  final locationBox = Hive.box('locationBox');
+  // final locationBox = Hive.box<LocationModel>('locationBox');
   final country = ref.watch(locationProvider.notifier).state.country;
   final city = ref.watch(locationProvider.notifier).state.city;
   final district = ref.watch(locationProvider.notifier).state.district;
@@ -64,30 +77,40 @@ final getPrayerTimesWithSelection =
     return null;
   } else {
     final apiService = ref.read(apiProvider);
-
+    final prefs = await SharedPreferences.getInstance();
+    final co = prefs.getString('country');
+    final ci = prefs.getString('city');
+    final di = prefs.getString('district');
     final prayerTimes = await apiService.getPrayerTimes(
-      locationBox.get('country') as String? ?? country ?? '',
-      locationBox.get('city') as String? ?? city ?? '',
-      locationBox.get('district') as String? ?? district ?? '',
+      co ?? country ?? '',
+      ci ?? city ?? '',
+      di ?? district ?? '',
       dates,
     );
     return prayerTimes;
   }
 });
 
+/// This provider using for the pullign the prayer times from the API. For
+/// working properly, user must grant the location permission and enable it.
+/// If the user doesn't grant the permission, it will return null.
 final getPrayerTimesWithLocation =
     FutureProvider.family.autoDispose((ref, String dates) async {
   final locator = ref.watch(locatorProvider.notifier).position;
   final apiService = ref.read(apiProvider);
-
+  final prefs = await SharedPreferences.getInstance();
+  final lat = prefs.getString('latitude');
+  final lon = prefs.getString('longitude');
   final prayerTimes = await apiService.getPrayerTimesByLocation(
-    latitude: locator?.latitude.toString() ?? '',
-    longitude: locator?.longitude.toString() ?? '',
+    latitude: lat ?? locator?.latitude.toString() ?? '',
+    longitude: lon ?? locator?.longitude.toString() ?? '',
     date: dates,
   );
   return prayerTimes;
 });
 
+/// This using for the setting position values and boolean value for the
+/// location permission.
 class LocatorNotifier extends StateNotifier<bool> {
   LocatorNotifier({this.isLocationEnabled = false}) : super(false);
 
@@ -96,20 +119,17 @@ class LocatorNotifier extends StateNotifier<bool> {
     return isLocationEnabled = value;
   }
 
-  final locationBox = Hive.box('locationBox');
-
   Position? position;
-  Position updatePosition(Position value) {
-    final pos = locationBox.get('position') as Position?;
-    if (pos == null) {
-      locationBox.put('position', value);
-      return position = value;
-    } else {
-      return position = pos;
-    }
+  Future<Position> updatePosition(Position value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('latitude', value.latitude.toString());
+    await prefs.setString('longitude', value.longitude.toString());
+    return position = value;
   }
 }
 
+/// This provider using for the read the location permission status and
+/// position values.
 final locatorProvider = StateNotifierProvider(
   (ref) => LocatorNotifier(),
 );

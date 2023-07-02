@@ -108,7 +108,7 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
   }
 }
 
-class Countdown extends AnimatedWidget {
+final class Countdown extends AnimatedWidget {
   Countdown({super.key, this.animation}) : super(listenable: animation!);
   final Animation<int>? animation;
 

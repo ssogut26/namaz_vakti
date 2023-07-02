@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 
-class MoonSlider extends ConsumerStatefulWidget {
+final class MoonSlider extends ConsumerStatefulWidget {
   const MoonSlider({super.key});
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _MoonSliderState();
@@ -64,7 +64,7 @@ class _MoonSliderState extends ConsumerState<MoonSlider> {
   }
 }
 
-class MoonThumbShape extends SliderComponentShape {
+final class MoonThumbShape extends SliderComponentShape {
   // A constructor that takes the image object as a parameter
   MoonThumbShape({this.image});
   // The image object to draw

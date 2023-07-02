@@ -6,7 +6,7 @@ part 'prayer_times.g.dart';
 @JsonSerializable()
 
 /// General prayer times model
-class PrayerTimesModel extends Equatable {
+final class PrayerTimesModel extends Equatable {
   /// Define prayer times elements
   const PrayerTimesModel({
     this.place,
@@ -42,7 +42,7 @@ class PrayerTimesModel extends Equatable {
 @JsonSerializable()
 
 /// Get place details
-class Place extends Equatable {
+final class Place extends Equatable {
   /// Define place elements
   const Place({
     this.country,
