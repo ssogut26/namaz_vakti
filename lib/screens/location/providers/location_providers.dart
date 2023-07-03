@@ -14,15 +14,24 @@ class LocationNotifier extends StateNotifier<LocationModel> {
   LocationNotifier(this.locationModel) : super(const LocationModel());
   final LocationModel locationModel;
 
-  void changeCountry(String? value) {
+  Future<void> changeCountry(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('country');
+    await prefs.setString('country', value ?? '');
     state = state.copyWith(country: value, city: '', district: '');
   }
 
-  void changeCity(String? value) {
+  Future<void> changeCity(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('city');
+    await prefs.setString('city', value ?? '');
     state = state.copyWith(city: value ?? '', district: '');
   }
 
-  void changeDistrict(String? value) {
+  Future<void> changeDistrict(String? value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('district');
+    await prefs.setString('district', value ?? '');
     state = state.copyWith(district: value ?? '');
   }
 }
@@ -81,6 +90,7 @@ final getPrayerTimesWithSelection =
     final co = prefs.getString('country');
     final ci = prefs.getString('city');
     final di = prefs.getString('district');
+
     final prayerTimes = await apiService.getPrayerTimes(
       co ?? country ?? '',
       ci ?? city ?? '',
@@ -114,9 +124,11 @@ final getPrayerTimesWithLocation =
 class LocatorNotifier extends StateNotifier<bool> {
   LocatorNotifier({this.isLocationEnabled = false}) : super(false);
 
-  bool isLocationEnabled = false;
-  bool changeLocationStatus({bool value = false}) {
-    return isLocationEnabled = value;
+  bool? isLocationEnabled;
+  Future<bool> changeLocationStatus({bool? value = false}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLocationEnabled', value ?? false);
+    return isLocationEnabled = value ?? false;
   }
 
   Position? position;

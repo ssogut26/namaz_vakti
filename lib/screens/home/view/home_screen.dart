@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -6,21 +8,69 @@ import 'package:namaz_vakti/screens/home/prayer_times_mixin.dart';
 import 'package:namaz_vakti/screens/home/view_model/index.dart';
 import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
 import 'package:namaz_vakti/screens/selection/selection_screen.dart';
+import 'package:namaz_vakti/services/cache_service.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // get part
 part '../providers/home_providers.dart';
 
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key, this.isLocation});
+class HomeCacheNotifier extends StateNotifier<List<List<String>>?> {
+  HomeCacheNotifier(this.cachedPrayerTimes) : super(cachedPrayerTimes);
 
-  final bool? isLocation;
+  final List<List<String>>? cachedPrayerTimes;
+
+  Future<void> getPrayerTimesFromCache() async {
+    final encodedPrayerTimes = await CacheManager().get<String>('prayerTimes');
+
+    state = (json.decode(encodedPrayerTimes) as List<dynamic>)
+        .map((e) => (e as List<dynamic>).map((f) => f as String).toList())
+        .toList();
+  }
+}
+
+final homeCacheProvider =
+    StateNotifierProvider<HomeCacheNotifier, List<List<String>>?>(
+  (ref) => HomeCacheNotifier(null),
+);
+
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool? isLocation;
+  Future<void> getLocationBoolValue() async {
+    final prefs = await SharedPreferences.getInstance();
+    isLocation = prefs.getBool('isLocationEnabled');
+  }
+
+  List<List<String>>? cachedPrayerTimes;
+
+  Future<List<List<String>>?> getPrayerTimesFromCache() async {
+    final encodedPrayerTimes = await CacheManager().get<String>('prayerTimes');
+
+    return cachedPrayerTimes =
+        (json.decode(encodedPrayerTimes) as List<dynamic>)
+            .map((e) => (e as List<dynamic>).map((f) => f as String).toList())
+            .toList();
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // ignore: prefer_final_locals
-    final prayerTimes = (isLocation ?? false)
+  void initState() {
+    getLocationBoolValue();
+    getPrayerTimesFromCache();
+    print(cachedPrayerTimes);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cprayer = ref.watch(homeCacheProvider.notifier).state;
+    
+    final prayerTimes = (isLocation ?? true)
         ? ref.watch(
             getPrayerTimesWithLocation(
               DateFormat('yyyy-MM-dd').format(DateTime.now()),
@@ -38,26 +88,30 @@ class HomeScreen extends ConsumerWidget {
       appBar: _homeAppBar(context, prayerTimes),
       body: Padding(
         padding: const EdgeInsets.all(8),
-        child: prayerTimes.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stackTrace) => Center(
-            child: Text(error.toString()),
-          ),
-          data: (PrayerTimesModel? prayerModel) {
-            if (prayerModel?.times?.isEmpty ?? true) {
-              return const Center(
-                child: Text('No data'),
-              );
-            } else {
-              ref.read(prayerTimesProvider.notifier).prayerTimes =
-                  prayerModel?.times?.values.map((e) => e).toList();
-
-              return const PrayerTimesView();
-            }
-          },
-        ),
+        child: (cprayer?.isEmpty ?? true)
+            ? prayerTimes.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                error: (error, stackTrace) => Center(
+                  child: Text(error.toString()),
+                ),
+                data: (PrayerTimesModel? prayerModel) {
+                  if (prayerModel?.times?.isEmpty ?? true) {
+                    return const Center(
+                      child: Text('No data'),
+                    );
+                  } else {
+                    ref.read(prayerTimesProvider.notifier).prayerTimes =
+                        prayerModel?.times?.values.map((e) => e).toList();
+                    ref
+                        .read(prayerTimesProvider.notifier)
+                        .savePrayerTimesToCache();
+                    return const PrayerTimesView();
+                  }
+                },
+              )
+            : const PrayerTimesView(),
       ),
     );
   }
@@ -114,7 +168,6 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
     with PrayerTimesViewMixin {
   @override
   Widget build(BuildContext context) {
-    final prayerTimes = ref.watch(prayerTimesProvider.notifier).prayerTimes;
     final remainingTime = ref.watch(
       findRemainingTimeProvider(
         prayerTimes ?? [],

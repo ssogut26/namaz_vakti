@@ -10,32 +10,34 @@ import 'package:shared_preferences/shared_preferences.dart';
 mixin LocationRequirementsMixin on ConsumerState<LocationRequirements> {
   @override
   WidgetRef get ref;
-  late final SharedPreferences prefs;
-
+  SharedPreferences? prefs;
   late final LocationNotifier locationValues =
       ref.read(locationProvider.notifier);
 
-  Future<void> updateCountry(String? value) async {
-    await prefs.setString('country', value ?? '');
-    setState(() {
-      locationValues.changeCountry(value);
-    });
+  void updateCountry(String? value) {
+    if (mounted) {
+      setState(() {
+        locationValues.changeCountry(value);
+      });
+    }
   }
 
-  Future<void> updateCity(String? value) async {
-    await prefs.setString('city', value ?? '');
-    setState(() {
-      locationValues.changeCity(
-        value,
-      );
-    });
+  void updateCity(String? value) {
+    if (mounted) {
+      setState(() {
+        locationValues.changeCity(
+          value,
+        );
+      });
+    }
   }
 
-  Future<void> updateDistrict(String? value) async {
-    await prefs.setString('district', value ?? '');
-    setState(() {
-      locationValues.changeDistrict(value);
-    });
+  void updateDistrict(String? value) {
+    if (mounted) {
+      setState(() {
+        locationValues.changeDistrict(value);
+      });
+    }
   }
 }
 
@@ -56,9 +58,7 @@ mixin LocationMixin on ConsumerState<LocationSelectionScreen> {
           )
         : await Navigator.of(context).push(
             MaterialPageRoute<void>(
-              builder: (context) => const HomeScreen(
-                isLocation: false,
-              ),
+              builder: (context) => const HomeScreen(),
             ),
           );
   }

@@ -8,10 +8,19 @@ mixin PrayerTimesViewMixin on ConsumerState<PrayerTimesView> {
   int? upcomingTime;
   @override
   WidgetRef get ref;
+  List<List<String>>? cachedPrayerTimes;
+  // Future<void> getCachedPrayerTimes() async {
+  //   final encodedPrayerTimes = await CacheManager().get<String>('prayerTimes');
+  //   cachedPrayerTimes = (json.decode(encodedPrayerTimes) as List<dynamic>)
+  //       .map((e) => (e as List<dynamic>).map((f) => f as String).toList())
+  //       .toList();
+  // }
 
   @override
   void initState() {
+    // getCachedPrayerTimes();
     prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
+
     final providerRemainingTime =
         ref.read(findRemainingTimeProvider(prayerTimes ?? []).notifier);
     remainingTime = providerRemainingTime.findRemainingTime();

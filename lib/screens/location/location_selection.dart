@@ -88,14 +88,10 @@ class _LocationRequirementsState extends ConsumerState<LocationRequirements>
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           CountrySelectionWidget(callBack: updateCountry),
-          (locationValues.state.country == null ||
-                  locationValues.state.country == '')
+          (locationValues.state.country.isEmptyOrNull)
               ? const SizedBox.shrink()
               : CitySelectionWidget(callBack: updateCity),
-          (locationValues.state.country == null ||
-                  locationValues.state.country == '' ||
-                  locationValues.state.city == null ||
-                  locationValues.state.city == '')
+          (locationValues.state.city.isEmptyOrNull)
               ? const SizedBox.shrink()
               : DistrictSelectionWidget(callBack: updateDistrict),
         ],
@@ -140,18 +136,19 @@ class DistrictSelectionWidget extends ConsumerWidget {
       ),
       asyncItems: (String filter) async {
         return districtSelection.when(
+          skipLoadingOnRefresh: true,
           data: (List<dynamic> districtList) {
-            final filteredCountries = districtList
+            final filteredDistricts = districtList
                 .where(
                   (cities) =>
                       cities.toString().toLowerCase().startsWith(filter),
                 )
                 .toList();
-            final countryNameList = <String>[];
-            for (final country in filteredCountries) {
-              countryNameList.add(country as String);
+            final districtNameList = <String>[];
+            for (final district in filteredDistricts) {
+              districtNameList.add(district as String);
             }
-            return countryNameList;
+            return districtNameList;
           },
           loading: () => [
             'Loading',
@@ -160,6 +157,12 @@ class DistrictSelectionWidget extends ConsumerWidget {
             'Error',
           ],
         );
+      },
+      onBeforeChange: (String? prev, String? next) async {
+        if (prev != next) {
+          await ref.read(locationProvider.notifier).changeDistrict(next);
+        }
+        return true;
       },
       onChanged: callBack,
     );
@@ -196,7 +199,7 @@ class CitySelectionWidget extends ConsumerWidget {
       ),
       asyncItems: (String filter) async {
         return citySelection.when(
-          skipLoadingOnRefresh: false,
+          skipLoadingOnRefresh: true,
           data: (cityList) {
             final filteredCities = cityList
                 .where(
@@ -217,6 +220,12 @@ class CitySelectionWidget extends ConsumerWidget {
             'Error',
           ],
         );
+      },
+      onBeforeChange: (String? prev, String? next) async {
+        if (prev != next) {
+          await ref.read(locationProvider.notifier).changeCity(next);
+        }
+        return true;
       },
       onChanged: callBack,
     );
@@ -252,6 +261,7 @@ class CountrySelectionWidget extends ConsumerWidget {
       ),
       asyncItems: (String filter) async {
         return countrySelection.when(
+          skipLoadingOnRefresh: true,
           data: (List<CountriesModel?> countryList) {
             final filteredCountries = countryList
                 .where(
@@ -273,7 +283,18 @@ class CountrySelectionWidget extends ConsumerWidget {
           ],
         );
       },
+      onBeforeChange: (String? prev, String? next) async {
+        if (prev != next) {
+          await ref.read(locationProvider.notifier).changeCountry(next);
+        }
+        return true;
+      },
       onChanged: callBack,
     );
   }
+}
+
+extension on String? {
+  bool get isEmptyOrNull => this == null || (this?.isEmpty ?? true);
+  bool get isNotEmptyOrNull => this != null && (this?.isNotEmpty ?? false);
 }

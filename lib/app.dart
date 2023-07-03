@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/location/location_selection.dart';
+import 'package:namaz_vakti/screens/selection/selection_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NamazVaktiApp extends StatelessWidget {
@@ -17,7 +17,7 @@ class NamazVaktiApp extends StatelessWidget {
       home: prefs.getString('latitude') != null ||
               prefs.getString('district') != null
           ? const HomeScreen()
-          : const LocationSelectionScreen(),
+          : const SelectionScreenView(),
     );
   }
 }

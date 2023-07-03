@@ -24,11 +24,12 @@ mixin SelectionScreenMixin on ConsumerState<SelectionScreenView> {
       case LocationPermission.always || LocationPermission.whileInUse:
         final location = await Geolocator.getCurrentPosition();
         await ref.read(locatorProvider.notifier).updatePosition(location);
+        await ref
+            .read(locatorProvider.notifier)
+            .changeLocationStatus(value: true);
         await Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (context) => const HomeScreen(
-              isLocation: true,
-            ),
+            builder: (context) => const HomeScreen(),
           ),
         );
       case LocationPermission.deniedForever:

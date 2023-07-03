@@ -28,6 +28,11 @@ final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
   set prayerTimes(List<List<String>>? prayerTimes) {
     _prayerTimes = prayerTimes;
   }
+
+  Future<void> savePrayerTimesToCache() async {
+    final encodedPrayerTime = jsonEncode(_prayerTimes);
+    await CacheManager().set('prayerTimes', encodedPrayerTime);
+  }
 }
 
 final prayerTimesProvider =
