@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   equatable: ^2.0.5
-  http: ^1.0.0
+  http: ^1.1.0
   lottie: ^2.4.0
   riverpod: ^2.3.6
   shared_preferences: ^2.2.0
@@ -23,6 +23,10 @@ dependencies:
   geolocator: ^9.0.2
   flutter_local_notifications: ^14.1.1
   hive_flutter: ^1.1.0
+  hive_generator: ^2.0.0
+  connectivity_plus: ^4.0.1
+  flutter_qiblah: ^2.2.0
+  flutter_svg: ^2.0.7
 
 
 dev_dependencies:
@@ -38,5 +42,5 @@ flutter:
   uses-material-design: true
 
   assets: 
-      - assets/
+     - assets/
 

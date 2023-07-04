@@ -2,9 +2,11 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/screens/location/models/location_model.dart';
 import 'package:namaz_vakti/services/api.dart';
 import 'package:namaz_vakti/services/api_provider.dart';
+import 'package:namaz_vakti/services/connection_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This is the state of the location notifier. It will be used to store the
@@ -82,6 +84,7 @@ final getPrayerTimesWithSelection =
   final country = ref.watch(locationProvider.notifier).state.country;
   final city = ref.watch(locationProvider.notifier).state.city;
   final district = ref.watch(locationProvider.notifier).state.district;
+  final connection = ref.watch(connectivityProvider);
   if (country == '' || city == '' || district == '') {
     return null;
   } else {
@@ -90,14 +93,17 @@ final getPrayerTimesWithSelection =
     final co = prefs.getString('country');
     final ci = prefs.getString('city');
     final di = prefs.getString('district');
-
-    final prayerTimes = await apiService.getPrayerTimes(
-      co ?? country ?? '',
-      ci ?? city ?? '',
-      di ?? district ?? '',
-      dates,
-    );
-    return prayerTimes;
+    if (connection == ConnectivityStatus.isConnected) {
+      final prayerTimes = await apiService.getPrayerTimes(
+        co ?? country ?? '',
+        ci ?? city ?? '',
+        di ?? district ?? '',
+        dates,
+      );
+      return prayerTimes;
+    } else {
+      return null;
+    }
   }
 });
 

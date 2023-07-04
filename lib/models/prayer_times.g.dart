@@ -3,6 +3,97 @@
 part of 'prayer_times.dart';
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class PrayerTimesModelAdapter extends TypeAdapter<PrayerTimesModel> {
+  @override
+  final int typeId = 0;
+
+  @override
+  PrayerTimesModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PrayerTimesModel(
+      place: fields[0] as Place?,
+      times: (fields[1] as Map?)?.map((dynamic k, dynamic v) =>
+          MapEntry(k as String, (v as List).cast<String>())),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PrayerTimesModel obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.place)
+      ..writeByte(1)
+      ..write(obj.times);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrayerTimesModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlaceAdapter extends TypeAdapter<Place> {
+  @override
+  final int typeId = 1;
+
+  @override
+  Place read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return Place(
+      country: fields[0] as String?,
+      countryCode: fields[1] as String?,
+      city: fields[2] as String?,
+      region: fields[3] as String?,
+      latitude: fields[4] as double?,
+      longitude: fields[5] as double?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, Place obj) {
+    writer
+      ..writeByte(6)
+      ..writeByte(0)
+      ..write(obj.country)
+      ..writeByte(1)
+      ..write(obj.countryCode)
+      ..writeByte(2)
+      ..write(obj.city)
+      ..writeByte(3)
+      ..write(obj.region)
+      ..writeByte(4)
+      ..write(obj.latitude)
+      ..writeByte(5)
+      ..write(obj.longitude);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaceAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 

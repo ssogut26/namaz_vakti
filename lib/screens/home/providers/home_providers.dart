@@ -2,6 +2,55 @@ part of '../view/home_screen.dart';
 
 final homeScreenProvider = Provider<HomeScreen>((ref) => const HomeScreen());
 
+class ConnectivityStatusNotifier extends StateNotifier<ConnectivityStatus> {
+  ConnectivityStatusNotifier() : super(ConnectivityStatus.NotDetermined) {
+    initConnectivity();
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+  Future<void> initConnectivity() async {
+    ConnectivityResult result;
+    try {
+      result = await Connectivity().checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e);
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    _updateConnectionStatus(result);
+  }
+
+  void _updateConnectionStatus(ConnectivityResult result) {
+    switch (result) {
+      case ConnectivityResult.mobile ||
+            ConnectivityResult.wifi ||
+            ConnectivityResult.vpn ||
+            ConnectivityResult.ethernet:
+        state = ConnectivityStatus.isConnected;
+
+      case ConnectivityResult.none ||
+            ConnectivityResult.bluetooth ||
+            ConnectivityResult.other:
+        state = ConnectivityStatus.isDisconnected;
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+}
+
+final connectivityProvider =
+    StateNotifierProvider<ConnectivityStatusNotifier, ConnectivityStatus>(
+  (ref) => ConnectivityStatusNotifier(),
+);
+
 final class CurrentTimeNotifier extends StateNotifier<int> {
   CurrentTimeNotifier(
     this.currentTime,
@@ -24,14 +73,23 @@ final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
 
   List<List<String>>? _prayerTimes;
   List<List<String>>? get prayerTimes => _prayerTimes;
+  PrayerTimesModel? _prayerTimesModel;
+  PrayerTimesModel? get prayerTimesModel => _prayerTimesModel;
+  final cachedPrayerTimes = Hive.box<PrayerTimesModel>('prayerTimesModel');
+
+  set prayerTimesModel(PrayerTimesModel? prayerTimesModel) {
+    _prayerTimesModel = prayerTimesModel;
+  }
+
+  Future<void> updatePrayerTimesModel() async {
+    await cachedPrayerTimes.put(
+      'prayerTimes',
+      _prayerTimesModel ?? const PrayerTimesModel(),
+    );
+  }
 
   set prayerTimes(List<List<String>>? prayerTimes) {
     _prayerTimes = prayerTimes;
-  }
-
-  Future<void> savePrayerTimesToCache() async {
-    final encodedPrayerTime = jsonEncode(_prayerTimes);
-    await CacheManager().set('prayerTimes', encodedPrayerTime);
   }
 }
 

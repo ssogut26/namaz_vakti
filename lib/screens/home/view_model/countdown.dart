@@ -73,7 +73,6 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
   void dispose() {
     _timer?.cancel();
     _controller?.dispose();
-
     super.dispose();
   }
 
