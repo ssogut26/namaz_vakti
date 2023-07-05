@@ -14,6 +14,7 @@ import 'package:namaz_vakti/screens/no_conneciton_screen.dart';
 import 'package:namaz_vakti/screens/qibla/compass_qibla.dart';
 import 'package:namaz_vakti/screens/selection/selection_screen.dart';
 import 'package:namaz_vakti/services/connection_service.dart';
+import 'package:namaz_vakti/services/notification.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,8 +38,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final cacheHive = Hive.box<PrayerTimesModel>('prayerTimesModel');
+  
   @override
   void initState() {
+    
     getLocationBoolValue();
     super.initState();
   }
@@ -69,6 +72,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await NotificationService().showNotification(
+            ref.read(prayerTimesProvider.notifier).prayerTimes?.first ?? [],
+          );
+        },
+      ),
       key: _key,
       drawer: const HomeDrawer(),
       appBar: _homeAppBar(context),
