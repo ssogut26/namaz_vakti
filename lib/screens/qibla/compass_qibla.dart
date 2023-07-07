@@ -30,13 +30,13 @@ class QiblaCompassViewState extends ConsumerState<QiblaCompassView> {
       body: qiblaDirection.when(
         data: (data) {
           final compassSvg = SvgPicture.asset(
-            'assets/compass.svg',
+            'assets/svg/compass.svg',
             height: 300,
             width: 300,
           );
 
           final needleSvg = SvgPicture.asset(
-            'assets/needle.svg',
+            'assets/svg/needle.svg',
             height: 300,
             width: 300,
           );

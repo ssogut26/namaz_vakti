@@ -9,9 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+
   Hive.registerAdapter(PrayerTimesModelAdapter());
   await NotificationService().initNotifications();
-
+  
   Hive.registerAdapter(PlaceAdapter());
   await Hive.openBox<PrayerTimesModel>('prayerTimesModel');
   final prefs = await SharedPreferences.getInstance();

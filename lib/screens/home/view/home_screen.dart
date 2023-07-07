@@ -38,10 +38,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final cacheHive = Hive.box<PrayerTimesModel>('prayerTimesModel');
-  
+
   @override
   void initState() {
-    
     getLocationBoolValue();
     super.initState();
   }
@@ -182,7 +181,7 @@ class HomeDrawer extends ConsumerWidget {
               onTap: () async {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.clear();
-                await Hive.box<PrayerTimesModel>('prayerTimes').clear();
+                await Hive.box<PrayerTimesModel>('prayerTimesModel').clear();
                 await Navigator.of(context).pushReplacement(
                   MaterialPageRoute<void>(
                     builder: (context) => const SelectionScreenView(),

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class INotificationService {
   void initNotifications();
@@ -9,6 +11,8 @@ abstract class INotificationService {
 }
 
 class NotificationService implements INotificationService {
+  NotificationService({this.ref});
+  final WidgetRef? ref;
   @override
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   @override
@@ -56,36 +60,62 @@ class NotificationService implements INotificationService {
   @override
   Future<void> showNotification(List<String>? prayerTimes) async {
     final timeNames = <String>[
-      'İmsak',
-      'Güneş',
-      'Öğle',
-      'İkindi',
-      'Akşam',
-      'Yatsı'
+      'Fajr',
+      'Sunrise',
+      'Dhuhr',
+      'Asr',
+      'Maghrib',
+      'Isha'
     ];
+
+    final table = Table(
+      children: const [
+        TableRow(
+          children: [
+            Text('Fajr'),
+            Text('Sunrise'),
+            Text('Dhuhr'),
+            Text('Asr'),
+            Text('Maghrib'),
+            Text('Isha'),
+          ],
+        ),
+        TableRow(
+          children: [
+            Text('12:40'),
+            Text('12:30'),
+            Text('12:20'),
+            Text('12,31'),
+            Text('12:32'),
+            Text('12:33'),
+          ],
+        ),
+      ],
+    );
     final androidNotificationDetails = AndroidNotificationDetails(
-      'your channel id',
-      'your channel name',
-      channelDescription: 'your channel description',
+      'Prayer times app',
+      'Prayer times app',
+      channelDescription: 'Shows the prayer times in notification bar',
       priority: Priority.low,
       ongoing: true,
       autoCancel: false,
-      showWhen: false,
-      channelShowBadge: false,
-      playSound: false,
-      color: Colors.red,
+      additionalFlags: Int32List.fromList(<int>[64, 2]),
+      color: Colors.orange,
       colorized: true,
-      styleInformation: BigTextStyleInformation(
-        summaryText: 'summaryText',
-        contentTitle: '${timeNames.followedBy(prayerTimes ?? <String>[])}',
-        '',
-      ),
+      showWhen: false,
+      indeterminate: true,
+      styleInformation: InboxStyleInformation([
+        for (var i = 0; i < timeNames.length; i++)
+          if (prayerTimes != null)
+            if (prayerTimes[i] != '00:00') '${timeNames[i]}: ${prayerTimes[i]}'
+      ]),
     );
+
     final notificationDetails =
         NotificationDetails(android: androidNotificationDetails);
     await _flutterLocalNotificationsPlugin.show(
       0,
-      '$prayerTimes',
+      '',
       '$prayerTimes',
       notificationDetails,
       payload: 'Test',
@@ -93,20 +123,36 @@ class NotificationService implements INotificationService {
   }
 }
 
-class MyCustomStyleInformation extends DefaultStyleInformation {
-  MyCustomStyleInformation({
-    this.summaryText,
+class MyBoxStyleInformation extends StyleInformation {
+  /// Constructs an instance of [MyBoxStyleInformation].
+  MyBoxStyleInformation(
+    this.lines, {
+    this.htmlFormatLines = false,
     this.contentTitle,
-    bool htmlFormatContent = false,
-    bool htmlFormatTitle = false,
-  }) : super(htmlFormatContent, htmlFormatTitle);
+    this.htmlFormatContentTitle = false,
+    this.summaryText,
+    this.htmlFormatSummaryText = false,
+  }) : super();
 
-  final List<String>? summaryText;
-  final List<String>? contentTitle;
+  /// Overrides ContentTitle in the big form of the template.
+  final String? contentTitle;
 
-  bool? htmlFormatContentTitle;
+  /// Set the first line of text after the detail section in the big form of
+  /// the template.
+  final String? summaryText;
+
+  /// The lines that form part of the digest section for inbox-style
+  /// notifications.
+  final List<String> lines;
+
+  /// Specifies if the lines should have formatting applied through HTML markup.
+  final bool htmlFormatLines;
+
+  /// Specifies if the overridden ContentTitle should have formatting applied
+  /// through HTML markup.
+  final bool? htmlFormatContentTitle;
 
   /// Specifies if formatting should be applied to the first line of text after
   /// the detail section in the big form of the template.
-  bool? htmlFormatSummaryText;
+  final bool? htmlFormatSummaryText;
 }
