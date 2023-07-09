@@ -39,9 +39,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   final cacheHive = Hive.box<PrayerTimesModel>('prayerTimesModel');
 
+  Future<void> showNotification(List<String> prayerTimes) async {
+    await NotificationService().initNotifications();
+    await NotificationService().showNotification(prayerTimes);
+  }
+
   @override
   void initState() {
     getLocationBoolValue();
+    final prayerTimes = ref.read(prayerTimesProvider.notifier)._prayerTimes;
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => showNotification(
+        prayerTimes?.first ??
+            cacheHive.get('prayerTimes')?.times?.values.first ??
+            [],
+      ),
+    );
+
     super.initState();
   }
 
@@ -72,11 +87,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await NotificationService().showNotification(
-            ref.read(prayerTimesProvider.notifier).prayerTimes?.first ?? [],
-          );
-        },
+        onPressed: () async {},
       ),
       key: _key,
       drawer: const HomeDrawer(),
@@ -131,6 +142,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   ) {
     return AppBar(
       automaticallyImplyLeading: false,
+      title: Text(cacheHive.get('prayerTimes')?.place?.city.toString() ?? ''),
       actions: [
         IconButton(
           onPressed: () async {

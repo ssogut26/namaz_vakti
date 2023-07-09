@@ -221,7 +221,7 @@ final class FindRemainingTimeNotifier
         nextPrayerTime = 'Isha';
         nextPrayerTimeIndex = 5;
       default:
-        nextPrayerTime = 'No Prayer Time';
+        nextPrayerTime = 'It is time for the prayer';
     }
     return nextPrayerTime ?? '';
   }
