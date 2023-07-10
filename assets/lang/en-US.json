@@ -1,0 +1,17 @@
+{
+  "error": {
+    "wentWrong" : "Something went wrong",
+    "locationNotFound" : "We didn't find any data on this location. Please check your location."
+  },
+  "drawer": {
+    "changeLocation": "Change Location",
+    "findQibla": "Find Qibla",
+    "reportProblem": "Report a Problem"
+  },
+  "countDown": {
+    "nextPrayer": "{} in",
+    "hours": "hours,",
+    "minutes": "minutes",
+    "seconds": "seconds"
+  }
+}
