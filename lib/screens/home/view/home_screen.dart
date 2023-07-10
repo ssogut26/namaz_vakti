@@ -86,9 +86,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {},
-      ),
       key: _key,
       drawer: const HomeDrawer(),
       appBar: _homeAppBar(context),
@@ -288,54 +285,67 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
         return Column(
           children: [
             if (pageIndex != 0)
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.20,
-                child: Card(
-                  child: Center(
-                    child: Text(
-                      date,
-                      style: Theme.of(context).textTheme.displaySmall,
+              Expanded(
+                flex: 2,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.20,
+                  child: Card(
+                    child: Center(
+                      child: Text(
+                        date,
+                        style: Theme.of(context).textTheme.displaySmall,
+                      ),
                     ),
                   ),
                 ),
               )
             else
-              NextPrayerTimeCard(
-                times: prayerTimes ?? [],
-              ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              // ignore: lines_longer_than_80_chars
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.65,
-                  width: pageIndex == 0
-                      ? MediaQuery.of(context).size.width * 0.80
-                      : MediaQuery.of(context).size.width * 0.95,
-                  child: ListView.builder(
-                    // There is 6 value on each day so
-                    // we need to set itemCount to 6
-                    itemCount: prayerTimes?[0].length ?? 0,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        color: upcomingTime == index && pageIndex == 0
-                            ? Colors.grey
-                            : Colors.white,
-                        child: DailyPrayerTimesWidget(
-                          upcomingTime: upcomingTime,
-                          remainingTime: remainingTime,
-                          prayerTimesByDay: prayerTimes,
-                          index: index,
-                        ),
-                      );
-                    },
+              Expanded(
+                flex: 3,
+                child: Card(
+                  margin: const EdgeInsets.all(2),
+                  color: const Color(0XFFC3D350),
+                  child: NextPrayerTimeCard(
+                    times: prayerTimes ?? [],
                   ),
                 ),
-                if (pageIndex != 0)
-                  const SizedBox.shrink()
-                else
-                  time < maghrib ? const SunSlider() : const MoonSlider()
-              ],
+              ),
+            Expanded(
+              flex: 10,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                // ignore: lines_longer_than_80_chars
+                children: [
+                  SizedBox(
+                    width: pageIndex == 0
+                        ? MediaQuery.of(context).size.width * 0.80
+                        : MediaQuery.of(context).size.width * 0.95,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      // There is 6 value on each day so
+                      // we need to set itemCount to 6
+                      itemCount: prayerTimes?[0].length ?? 0,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          color: upcomingTime == index && pageIndex == 0
+                              ? const Color(0xFF7A918D)
+                              : const Color(0XFFC2F9BB),
+                          child: DailyPrayerTimesWidget(
+                            upcomingTime: upcomingTime,
+                            remainingTime: remainingTime,
+                            prayerTimesByDay: prayerTimes,
+                            index: index,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  if (pageIndex != 0)
+                    const SizedBox.shrink()
+                  else
+                    time < maghrib ? const SunSlider() : const MoonSlider()
+                ],
+              ),
             ),
           ],
         );

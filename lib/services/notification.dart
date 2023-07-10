@@ -55,26 +55,27 @@ class NotificationService implements INotificationService {
     }
   }
 
+  static const timeNames = <String>[
+    'Fajr',
+    'Sunrise',
+    'Dhuhr',
+    'Asr',
+    'Maghrib',
+    'Isha'
+  ];
   @override
   Future<void> showNotification(List<String> prayerTimes) async {
-    final timeNames = <String>[
-      'Fajr',
-      'Sunrise',
-      'Dhuhr',
-      'Asr',
-      'Maghrib',
-      'Isha'
-    ];
-
     final androidNotificationDetails = AndroidNotificationDetails(
-      'Prayer times app',
-      'Prayer times app',
+      'Prayer times',
+      'Prayer times',
       channelDescription: 'Shows the prayer times in notification bar',
       priority: Priority.low,
       autoCancel: false,
       color: Colors.orange,
       colorized: true,
       ongoing: true,
+      enableVibration: false,
+      playSound: false,
       showWhen: false,
       styleInformation: InboxStyleInformation(
         [

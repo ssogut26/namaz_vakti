@@ -78,27 +78,28 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.20,
-      width: MediaQuery.of(context).size.width * 0.75,
+    return Padding(
+      padding: const EdgeInsets.all(8),
       child: Column(
         children: [
           Text(
             '$nextPrayerTime in',
-            style: Theme.of(context).textTheme.titleLarge,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
-          Countdown(
-            animation: StepTween(
-              begin: countTimer,
-              end: 0,
-            ).animate(
-              _controller ??
-                  AnimationController(
-                    vsync: this,
-                    duration: Duration(
-                      seconds: countTimer,
+          Align(
+            child: Countdown(
+              animation: StepTween(
+                begin: countTimer,
+                end: 0,
+              ).animate(
+                _controller ??
+                    AnimationController(
+                      vsync: this,
+                      duration: Duration(
+                        seconds: countTimer,
+                      ),
                     ),
-                  ),
+              ),
             ),
           ),
         ],
@@ -108,7 +109,10 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
 }
 
 final class Countdown extends AnimatedWidget {
-  Countdown({super.key, this.animation}) : super(listenable: animation!);
+  Countdown({
+    super.key,
+    this.animation,
+  }) : super(listenable: animation!);
   final Animation<int>? animation;
 
   @override
@@ -120,51 +124,60 @@ final class Countdown extends AnimatedWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Card(
-          elevation: 10,
-          child: Column(
-            children: [
-              Text(
-                hourTimer == 0
-                    ? minuteTimer.toString().padLeft(2, '0')
-                    : hourTimer.toString().padLeft(2, '0'),
-                style: TextStyle(
-                  fontSize: 55,
-                  color: Theme.of(context).primaryColor,
-                ),
+        Column(
+          children: [
+            Card(
+              elevation: 3,
+              color: const Color(0xFF8ACDEA),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Text(
+                      hourTimer == 0
+                          ? minuteTimer.toString().padLeft(2, '0')
+                          : hourTimer.toString().padLeft(2, '0'),
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                hourTimer == 0 ? 'Minutes' : 'Hours',
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
+            ),
+            Text(
+              hourTimer == 0 ? 'Minutes' : 'Hours',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
         ),
-        const Text(':', style: TextStyle(fontSize: 45)),
-        Card(
-          color: Colors.white,
-          elevation: 10,
-          child: Column(
-            children: [
-              Text(
-                hourTimer != 0
-                    ? minuteTimer.toString().padLeft(2, '0')
-                    : secondTimer.toString().padLeft(2, '0'),
-                style: TextStyle(
-                  fontSize: 55,
-                  color: Theme.of(context).primaryColor,
-                ),
+        const AnimatedOpacity(
+          opacity: 1,
+          duration: Duration(seconds: 1),
+          child: Text(':', style: TextStyle(fontSize: 45)),
+        ),
+        Column(
+          children: [
+            Card(
+              color: const Color(0xFFF38D68),
+              elevation: 3,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Text(
+                      hourTimer != 0
+                          ? minuteTimer.toString().padLeft(2, '0')
+                          : secondTimer.toString().padLeft(2, '0'),
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                hourTimer != 0 ? 'Minutes' : 'Seconds',
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
+            ),
+            Text(
+              hourTimer != 0 ? 'Minutes' : 'Seconds',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
         ),
       ],
     );

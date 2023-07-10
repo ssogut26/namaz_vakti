@@ -12,6 +12,11 @@ class NamazVaktiApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color(0xFFF9F5E3),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF9F5E3),
+          elevation: 0,
+        ),
         useMaterial3: true,
       ),
       home: prefs.getString('latitude') != null ||
