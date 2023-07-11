@@ -1,0 +1,55 @@
+{
+    "error": {
+      "wentWrong" : "Bir şeyler ters gitti. Lütfen daha sonra tekrar deneyin.",
+      "locationNotFound" : "Girilen bölgeye ait veriye ulaşılamadı. Lütfen tekrar bölgenizi seçiniz."
+    },
+    "drawer": {
+      "changeLocation": "Konum Değiştir",
+      "findQibla": "Kıble Bul",
+      "reportProblem": "Sorun Bildir"
+    },
+    "countDown": {
+      "nextPrayer": "{} Namazına Kalan Süre",
+      "hours": "Saat",
+      "minutes": "Dakika",
+      "seconds": "Saniye"
+    },
+    "prayerTimes": {
+      "fajr": "İmsak",
+      "sunrise": "Güneş",
+      "dhuhr": "Öğle",
+      "asr": "İkindi",
+      "maghrib": "Akşam",
+      "isha": "Yatsı"
+    },
+    "locationSelection":{
+      "selectLocation": "Konum Seçiniz",
+      "getPrayerTimes": "Namaz vakitlerini al",
+      "country": "Ülke",
+      "selectCountry": "Ülke Seçiniz",
+      "city": "Şehir",
+      "selectCity": "Şehir Seçiniz",
+      "district": "İlçe",
+      "selectDistrict": "İlçe Seçiniz",
+      "loading" : "Yükleniyor...",
+      "error": "Hata",
+      "tryAgain": "Lütfen geçerli bir bölge seçiniz."
+    },
+    "findQibla": {
+      "qiblaCompass": "Kıble Pusulası"
+    },
+    "selectionScreen": {
+      "selectWay": "Konumunuzu nasıl seçmek istersiniz?",
+      "useMyLocation": "Konumumu kullan",
+      "enterManually": "Kendim belirlemek istiyorum"
+    },
+    "noConnection": {
+      "title": "Internet bağlantısı bulunamadıç",
+      "message": "Lütfen internet bağlantınızı kontrol ediniz ve tekrar deneyiniz."
+    },
+    "appName": "Namaz Vakti",
+    "appChannel": "Namaz Vakitleri",
+    "notificationTitle": "Namaz Vakitleri",
+    "appDescription": "Namaz Vakitleri uygulaması için bildirim kanalı"
+  }
+  

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:namaz_vakti/constants/constants.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 
 abstract class INotificationService {
   void initNotifications();
@@ -55,20 +58,12 @@ class NotificationService implements INotificationService {
     }
   }
 
-  static const timeNames = <String>[
-    'Fajr',
-    'Sunrise',
-    'Dhuhr',
-    'Asr',
-    'Maghrib',
-    'Isha'
-  ];
   @override
   Future<void> showNotification(List<String> prayerTimes) async {
     final androidNotificationDetails = AndroidNotificationDetails(
-      'Prayer times',
-      'Prayer times',
-      channelDescription: 'Shows the prayer times in notification bar',
+      LocaleKeys.appName.locale,
+      LocaleKeys.appChannel.locale,
+      channelDescription: LocaleKeys.appDescription.locale,
       priority: Priority.low,
       autoCancel: false,
       color: Colors.orange,
@@ -80,8 +75,8 @@ class NotificationService implements INotificationService {
       styleInformation: InboxStyleInformation(
         [
           for (var i = 0; i < prayerTimes.length; i++)
-            for (var j = 0; j < timeNames.length; j++)
-              if (i == j) '${timeNames[j]}: ${prayerTimes[i]}'
+            for (var j = 0; j < AppConstants.timeNames.length; j++)
+              if (i == j) '${AppConstants.timeNames[j]}: ${prayerTimes[i]}'
         ],
       ),
     );
@@ -89,10 +84,9 @@ class NotificationService implements INotificationService {
         NotificationDetails(android: androidNotificationDetails);
     await _flutterLocalNotificationsPlugin.show(
       0,
-      'Prayer times',
+      LocaleKeys.appName.locale,
       prayerTimes.map((e) => e).join('\n'),
       notificationDetails,
-      payload: 'Test',
     );
   }
 }

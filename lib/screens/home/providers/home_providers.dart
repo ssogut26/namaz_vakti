@@ -203,25 +203,25 @@ final class FindRemainingTimeNotifier
   String getNextPrayerTime([int customIndex = 0]) {
     switch (customIndex) {
       case 0:
-        nextPrayerTime = 'Fajr';
+        nextPrayerTime = LocaleKeys.prayerTimes_fajr.locale;
         nextPrayerTimeIndex = 0;
       case 1:
-        nextPrayerTime = 'Sunrise';
+        nextPrayerTime = LocaleKeys.prayerTimes_sunrise.locale;
         nextPrayerTimeIndex = 1;
       case 2:
-        nextPrayerTime = 'Dhuhr';
+        nextPrayerTime = LocaleKeys.prayerTimes_dhuhr.locale;
         nextPrayerTimeIndex = 2;
       case 3:
-        nextPrayerTime = 'Asr';
+        nextPrayerTime = LocaleKeys.prayerTimes_asr.locale;
         nextPrayerTimeIndex = 3;
       case 4:
-        nextPrayerTime = 'Maghrib';
+        nextPrayerTime = LocaleKeys.prayerTimes_maghrib.locale;
         nextPrayerTimeIndex = 4;
       case 5:
-        nextPrayerTime = 'Isha';
+        nextPrayerTime = LocaleKeys.prayerTimes_isha.locale;
         nextPrayerTimeIndex = 5;
       default:
-        nextPrayerTime = 'It is time for the prayer';
+        nextPrayerTime = LocaleKeys.prayerTimes_prayerTime.locale;
     }
     return nextPrayerTime ?? '';
   }

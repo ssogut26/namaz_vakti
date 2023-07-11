@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 
 class NoConnectionScreenView extends StatefulWidget {
   const NoConnectionScreenView({super.key});
@@ -12,10 +14,10 @@ class _NoConnectionScreenViewState extends State<NoConnectionScreenView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('No Connection'),
+        title: Text(LocaleKeys.noConnection_title.locale),
       ),
-      body: const Center(
-        child: Text('No Connection'),
+      body: Center(
+        child: Text(LocaleKeys.noConnection_message.locale),
       ),
     );
   }

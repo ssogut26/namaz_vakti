@@ -32,5 +32,11 @@ final class LocationModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [country, city, district, latitude, longitude];
+  List<Object?> get props => [
+        country,
+        city,
+        district,
+        latitude,
+        longitude,
+      ];
 }

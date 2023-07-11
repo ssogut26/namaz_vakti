@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 
 class NextPrayerTimeCard extends ConsumerStatefulWidget {
@@ -83,7 +85,7 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
       child: Column(
         children: [
           Text(
-            '$nextPrayerTime in',
+            LocaleKeys.countDown_nextPrayer.localeWithValue(nextPrayerTime),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           Align(
@@ -144,7 +146,9 @@ final class Countdown extends AnimatedWidget {
               ),
             ),
             Text(
-              hourTimer == 0 ? 'Minutes' : 'Hours',
+              hourTimer == 0
+                  ? LocaleKeys.countDown_minutes.locale
+                  : LocaleKeys.countDown_hours.locale,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -174,7 +178,9 @@ final class Countdown extends AnimatedWidget {
               ),
             ),
             Text(
-              hourTimer != 0 ? 'Minutes' : 'Seconds',
+              hourTimer != 0
+                  ? LocaleKeys.countDown_minutes.locale
+                  : LocaleKeys.countDown_seconds.locale,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],

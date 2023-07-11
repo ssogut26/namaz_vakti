@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:namaz_vakti/screens/home/mixins/prayer_times_mixin.dart';
 import 'package:namaz_vakti/screens/home/view_model/index.dart';
@@ -98,13 +100,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         connectivity == ConnectivityStatus.isConnected
                 ? prayerTimes.when(
                     loading: LoadingWidget.new,
-                    error: (error, stackTrace) =>
-                        const Center(child: Text('Something went wrong')),
+                    error: (error, stackTrace) => Center(
+                      child: Text(LocaleKeys.error_wentWrong.locale),
+                    ),
                     data: (PrayerTimesModel? prayerModel) {
                       if (prayerModel?.times?.isEmpty ?? true) {
-                        return const Center(
+                        return Center(
                           child: Text(
-                            "We didn't find any data on this location. Please check your location.",
+                            LocaleKeys.error_locationNotFound.locale,
                           ),
                         );
                       }
@@ -137,9 +140,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   AppBar _homeAppBar(
     BuildContext context,
   ) {
+    final prayerTimes =
+        ref.read(prayerTimesProvider.notifier)._prayerTimesModel;
     return AppBar(
       automaticallyImplyLeading: false,
-      title: Text(cacheHive.get('prayerTimes')?.place?.city.toString() ?? ''),
+      title: Text(
+        cacheHive.get('prayerTimes')?.place?.city.toString() ??
+            prayerTimes?.place?.city ??
+            '',
+      ),
       actions: [
         IconButton(
           onPressed: () async {
@@ -199,7 +208,7 @@ class HomeDrawer extends ConsumerWidget {
               },
               leading: const Icon(Icons.location_on_outlined),
               title: Text(
-                'Change Location',
+                LocaleKeys.drawer_changeLocation.locale,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -213,7 +222,7 @@ class HomeDrawer extends ConsumerWidget {
               },
               leading: const Icon(Icons.compass_calibration_outlined),
               title: Text(
-                'Find Qibla',
+                LocaleKeys.drawer_findQibla.locale,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -225,7 +234,7 @@ class HomeDrawer extends ConsumerWidget {
                 color: Colors.red,
               ),
               title: Text(
-                'Report a problem',
+                LocaleKeys.drawer_reportProblem.locale,
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge

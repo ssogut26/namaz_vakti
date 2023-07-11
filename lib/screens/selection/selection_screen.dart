@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/screens/location/location_selection.dart';
 import 'package:namaz_vakti/screens/selection/selection_screen_mixin.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 class SelectionScreenView extends ConsumerStatefulWidget {
   const SelectionScreenView({super.key});
   @override
@@ -13,16 +11,6 @@ class SelectionScreenView extends ConsumerStatefulWidget {
 
 class _SelectionScreenViewState extends ConsumerState<SelectionScreenView>
     with SelectionScreenMixin {
-  void test() async {
-    final prefs = await SharedPreferences.getInstance();
-    print(prefs.getString('district'));
-  }
-
-  @override
-  void initState() {
-    test();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {

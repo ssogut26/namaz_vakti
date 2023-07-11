@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/screens/location/location_selection.dart';
 import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
@@ -51,9 +53,9 @@ mixin LocationMixin on ConsumerState<LocationSelectionScreen> {
     locationValues.state.district == null || locationValues.state.district == ''
         ? await showDialog<void>(
             context: context,
-            builder: (context) => const AlertDialog(
-              title: Text('Error'),
-              content: Text('Try again with a valid location.'),
+            builder: (context) => AlertDialog(
+              title: Text(LocaleKeys.locationSelection_error.locale),
+              content: Text(LocaleKeys.locationSelection_tryAgain.locale),
             ),
           )
         : await Navigator.of(context).push(

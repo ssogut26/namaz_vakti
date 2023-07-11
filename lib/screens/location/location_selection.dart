@@ -3,6 +3,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/countries.dart';
 import 'package:namaz_vakti/screens/location/location_mixin.dart';
 import 'package:namaz_vakti/screens/location/models/location_model.dart';
@@ -21,7 +23,7 @@ class LocationSelectionScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Location Selection'),
+        title: Text(LocaleKeys.locationSelection_selectLocation.locale),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -31,7 +33,7 @@ class LocationSelectionScreenState
             SizedBox(height: MediaQuery.of(context).size.height * 0.4),
             AppElevatedButton(
               onPressed: getPrayerTimesButton,
-              text: 'Get Prayer Times',
+              text: LocaleKeys.locationSelection_getPrayerTimes.locale,
             )
           ],
         ),
@@ -116,22 +118,22 @@ class DistrictSelectionWidget extends ConsumerWidget {
       ),
     );
     return DropdownSearch<String?>(
-      dropdownDecoratorProps: const DropDownDecoratorProps(
+      dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
-          labelText: 'District',
-          hintText: 'Select District',
+          labelText: LocaleKeys.locationSelection_district.locale,
+          hintText: LocaleKeys.locationSelection_selectDistrict.locale,
         ),
       ),
       selectedItem: locationValues.state.district,
-      popupProps: const PopupProps.modalBottomSheet(
+      popupProps: PopupProps.modalBottomSheet(
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            labelText: 'District',
-            hintText: 'Select District',
+            labelText: LocaleKeys.locationSelection_district.locale,
+            hintText: LocaleKeys.locationSelection_selectDistrict.locale,
           ),
         ),
-        searchDelay: Duration(milliseconds: 300),
+        searchDelay: const Duration(milliseconds: 300),
         isFilterOnline: true,
       ),
       asyncItems: (String filter) async {
@@ -151,10 +153,10 @@ class DistrictSelectionWidget extends ConsumerWidget {
             return districtNameList;
           },
           loading: () => [
-            'Loading',
+            LocaleKeys.locationSelection_loading.locale,
           ],
           error: (error, stackTrace) => [
-            'Error',
+            LocaleKeys.locationSelection_error.locale,
           ],
         );
       },
@@ -179,22 +181,22 @@ class CitySelectionWidget extends ConsumerWidget {
     final citySelection =
         ref.watch(citySelectionProvider(locationValues.state.country ?? ''));
     return DropdownSearch<String?>(
-      dropdownDecoratorProps: const DropDownDecoratorProps(
+      dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
-          labelText: 'City',
-          hintText: 'Select City',
+          labelText: LocaleKeys.locationSelection_city.locale,
+          hintText: LocaleKeys.locationSelection_selectCity.locale,
         ),
       ),
       selectedItem: locationValues.state.city,
-      popupProps: const PopupProps.modalBottomSheet(
+      popupProps: PopupProps.modalBottomSheet(
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            labelText: 'City',
-            hintText: 'Select city',
+            labelText: LocaleKeys.locationSelection_city.locale,
+            hintText: LocaleKeys.locationSelection_selectCity.locale,
           ),
         ),
-        searchDelay: Duration(milliseconds: 300),
+        searchDelay: const Duration(milliseconds: 300),
         isFilterOnline: true,
       ),
       asyncItems: (String filter) async {
@@ -214,10 +216,10 @@ class CitySelectionWidget extends ConsumerWidget {
             return cityNameList;
           },
           loading: () => [
-            'Loading',
+            LocaleKeys.locationSelection_loading.locale,
           ],
           error: (error, stackTrace) => [
-            'Error',
+            LocaleKeys.locationSelection_error.locale,
           ],
         );
       },
@@ -241,22 +243,22 @@ class CountrySelectionWidget extends ConsumerWidget {
     final countrySelection = ref.watch(countrySelectionProvider);
     final locationValues = ref.watch(locationProvider.notifier);
     return DropdownSearch<String?>(
-      dropdownDecoratorProps: const DropDownDecoratorProps(
+      dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
-          labelText: 'Country',
-          hintText: 'Select country',
+          labelText: LocaleKeys.locationSelection_country.locale,
+          hintText: LocaleKeys.locationSelection_selectCountry.locale,
         ),
       ),
       selectedItem: locationValues.state.country,
-      popupProps: const PopupProps.modalBottomSheet(
+      popupProps: PopupProps.modalBottomSheet(
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
-            labelText: 'Country',
-            hintText: 'Select country',
+            labelText: LocaleKeys.locationSelection_country.locale,
+            hintText: LocaleKeys.locationSelection_selectCountry.locale,
           ),
         ),
-        searchDelay: Duration(milliseconds: 300),
+        searchDelay: const Duration(milliseconds: 300),
         isFilterOnline: true,
       ),
       asyncItems: (String filter) async {
@@ -276,10 +278,10 @@ class CountrySelectionWidget extends ConsumerWidget {
             return countryNameList;
           },
           loading: () => [
-            'Loading',
+            LocaleKeys.locationSelection_loading.locale,
           ],
           error: (error, stackTrace) => [
-            'Error',
+            LocaleKeys.locationSelection_error.locale,
           ],
         );
       },
@@ -294,7 +296,3 @@ class CountrySelectionWidget extends ConsumerWidget {
   }
 }
 
-extension on String? {
-  bool get isEmptyOrNull => this == null || (this?.isEmpty ?? true);
-  bool get isNotEmptyOrNull => this != null && (this?.isNotEmpty ?? false);
-}

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 
 final qiblaProvider = StreamProvider<QiblahDirection>((ref) {
@@ -25,7 +27,7 @@ class QiblaCompassViewState extends ConsumerState<QiblaCompassView> {
     final qiblaDirection = ref.watch(qiblaProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Qibla Compass'),
+        title: Text(LocaleKeys.findQibla_qiblaCompass.locale),
       ),
       body: qiblaDirection.when(
         data: (data) {
