@@ -35,6 +35,11 @@ abstract class  LocaleKeys {
   static const locationSelection = 'locationSelection';
   static const findQibla_qiblaCompass = 'findQibla.qiblaCompass';
   static const findQibla = 'findQibla';
+  static const language_changeLanguage = 'language.changeLanguage';
+  static const language_language = 'language.language';
+  static const language_en = 'language.en';
+  static const language_tr = 'language.tr';
+  static const language = 'language';
   static const selectionScreen_selectWay = 'selectionScreen.selectWay';
   static const selectionScreen_useMyLocation = 'selectionScreen.useMyLocation';
   static const selectionScreen_enterManually = 'selectionScreen.enterManually';

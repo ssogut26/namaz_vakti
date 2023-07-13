@@ -39,6 +39,12 @@
   "findQibla": {
     "qiblaCompass": "Qibla Compass"
   },
+  "language": {
+    "changeLanguage": "Change Language",
+    "language": "Language",
+    "en": "English",
+    "tr": "Turkish"
+  },
   "selectionScreen": {
     "selectWay": "Select a way to find your location",
     "useMyLocation": "Use my location",

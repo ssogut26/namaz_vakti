@@ -16,7 +16,7 @@ class _MoonSliderState extends ConsumerState<MoonSlider> {
   ui.Image? _moonImage;
 
   Future<void> loadMoonImage() async {
-    final data = await rootBundle.load('assets/moon.png');
+    final data = await rootBundle.load('assets/images/moon.png');
     final image = await decodeImageFromList(data.buffer.asUint8List());
     setState(() {
       _moonImage = image;
@@ -46,7 +46,7 @@ class _MoonSliderState extends ConsumerState<MoonSlider> {
           quarterTurns: 1,
           child: SliderTheme(
             data: SliderThemeData(
-              trackHeight: 20,
+              trackHeight: 5,
               thumbShape: MoonThumbShape(
                 image: _moonImage,
               ),

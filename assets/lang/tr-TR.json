@@ -38,6 +38,12 @@
     "findQibla": {
       "qiblaCompass": "Kıble Pusulası"
     },
+    "language": {
+      "changeLanguage": "Dil Değiştir",
+      "language": "Dil",
+      "en": "English",
+      "tr": "Türkçe"
+    },
     "selectionScreen": {
       "selectWay": "Konumunuzu nasıl seçmek istersiniz?",
       "useMyLocation": "Konumumu kullan",

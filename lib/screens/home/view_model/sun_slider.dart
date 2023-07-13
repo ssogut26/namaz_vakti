@@ -18,7 +18,7 @@ class _SunSliderState extends ConsumerState<SunSlider> {
   // A method to load the image asset
   Future<void> _loadSunImage() async {
     // Get the byte data of the image file
-    final data = await rootBundle.load('assets/sun.png');
+    final data = await rootBundle.load('assets/images/sun.png');
     // Decode the image data and create an image object
     final image = await decodeImageFromList(data.buffer.asUint8List());
     // Update the state with the image object
@@ -48,7 +48,8 @@ class _SunSliderState extends ConsumerState<SunSlider> {
           quarterTurns: 1,
           child: SliderTheme(
             data: SliderThemeData(
-              trackHeight: 20,
+              trackHeight: 5,
+              disabledActiveTrackColor: Colors.yellow,
               thumbShape: SunThumbShape(image: _sunImage),
             ),
             child: Slider(

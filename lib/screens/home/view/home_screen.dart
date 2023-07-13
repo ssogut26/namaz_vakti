@@ -1,11 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
@@ -228,6 +230,98 @@ class HomeDrawer extends ConsumerWidget {
             ),
             const Spacer(),
             ListTile(
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final radioValue = prefs.getInt('language') ?? 2;
+
+                await showModalBottomSheet<Column>(
+                  context: context,
+                  builder: (context) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.25,
+                      width: MediaQuery.of(context).size.width,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          children: [
+                            Text(
+                              LocaleKeys.language_language.locale,
+                              style: Theme.of(context).textTheme.headlineSmall,
+                              textAlign: TextAlign.left,
+                            ),
+                            RadioListTile(
+                              value: 0,
+                              groupValue: radioValue,
+                              onChanged: (value) async {
+                                await prefs.remove('language');
+                                await prefs.setInt('language', 0);
+                                await context
+                                    .setLocale(const Locale('en', 'US'));
+                                Navigator.of(context).pop();
+                              },
+                              title: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/en.png',
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      LocaleKeys.language_en.locale,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            RadioListTile(
+                              toggleable: true,
+                              value: 1,
+                              groupValue: radioValue,
+                              onChanged: (value) async {
+                                await prefs.remove('language');
+                                await prefs.setInt('language', 1);
+                                await context
+                                    .setLocale(const Locale('tr', 'TR'));
+                                Navigator.of(context).pop();
+                              },
+                              title: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/tr.png',
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      LocaleKeys.language_tr.locale,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              leading: const Icon(Icons.settings_outlined),
+              title: Text(
+                LocaleKeys.language_changeLanguage.locale,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            ListTile(
               onTap: () {},
               leading: const Icon(
                 Icons.report_problem_outlined,
@@ -295,10 +389,11 @@ class _PrayerTimesViewState extends ConsumerState<PrayerTimesView>
           children: [
             if (pageIndex != 0)
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height * 0.20,
                   child: Card(
+                    color: const Color(0XFFC3D350),
                     child: Center(
                       child: Text(
                         date,

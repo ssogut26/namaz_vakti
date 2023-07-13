@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:namaz_vakti/app.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,9 +22,9 @@ Future<void> main() async {
           Locale('en', 'US'),
           Locale('tr', 'TR'),
         ],
+        assetLoader: const CodegenLoader(),
         fallbackLocale: const Locale('en', 'US'),
         path: 'assets/lang', // <-- change the path of the translation files
-        // assetLoader: CodegenLoader(),
         child: NamazVaktiApp(prefs: prefs),
       ),
     ),

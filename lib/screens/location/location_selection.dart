@@ -46,28 +46,35 @@ class AppElevatedButton extends StatelessWidget {
   const AppElevatedButton({
     required this.onPressed,
     required this.text,
+    this.color,
     super.key,
   });
 
   final void Function()? onPressed;
   final String? text;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        shape: const RoundedRectangleBorder(),
         fixedSize: Size(
           MediaQuery.of(context).size.width,
-          50,
+          MediaQuery.of(context).size.height * 0.52,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(2),
-        ),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.blue,
       ),
       onPressed: onPressed,
-      child: Text(text ?? ''),
+      child: Center(
+        child: Text(
+          text ?? '',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+              ),
+        ),
+      ),
     );
   }
 }
@@ -295,4 +302,3 @@ class CountrySelectionWidget extends ConsumerWidget {
     );
   }
 }
-
