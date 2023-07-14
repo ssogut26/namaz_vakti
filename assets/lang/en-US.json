@@ -1,0 +1,61 @@
+{
+  "error": {
+    "wentWrong" : "Something went wrong",
+    "locationNotFound" : "We didn't find any data on this location. Please check your location."
+  },
+  "drawer": {
+    "changeLocation": "Change Location",
+    "findQibla": "Find Qibla",
+    "reportProblem": "Report a Problem"
+  },
+  "countDown": {
+    "nextPrayer": "{} in",
+    "hours": "Hours,",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
+  },
+  "prayerTimes": {
+    "fajr": "Fajr",
+    "sunrise": "Sunrise",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha",
+  "prayerTime": "It is time for the prayer"
+  },
+  "locationSelection":{
+    "selectLocation": "Select Location",
+    "getPrayerTimes": "Get Prayer Times",
+    "country": "Country",
+    "selectCountry": "Select Country",
+    "city": "City",
+    "selectCity": "Select City",
+    "district": "District",
+    "selectDistrict": "Select District",
+    "loading" : "Loading...",
+    "error": "Error",
+    "tryAgain": "Try again with a valid location."
+  },
+  "findQibla": {
+    "qiblaCompass": "Qibla Compass"
+  },
+  "language": {
+    "changeLanguage": "Change Language",
+    "language": "Language",
+    "en": "English",
+    "tr": "Turkish"
+  },
+  "selectionScreen": {
+    "selectWay": "Select a way to find your location",
+    "useMyLocation": "Use my location",
+    "enterManually": "I will enter my location manually"
+  },
+  "noConnection": {
+    "title": "No Internet Connection",
+    "message": "Please check your internet connection and try again."
+  },
+  "appName": "Prayer Times App",
+  "appChannel": "Prayer times",
+  "notificationTitle": "Prayer times",
+  "appDescription": "Shows the prayer times in notification bar."
+}

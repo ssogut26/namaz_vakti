@@ -7,22 +7,30 @@ environment:
   sdk: '>=3.0.2 <4.0.0'
 
 dependencies:
-  equatable: ^2.0.5
   flutter:
     sdk: flutter
-  http: ^1.0.0
+  equatable: ^2.0.5
+  http: ^1.1.0
   lottie: ^2.4.0
   riverpod: ^2.3.6
-  shared_preferences: ^2.1.1
-  country_state_city_picker: ^1.2.8
+  shared_preferences: ^2.2.0
   json_serializable: ^6.7.0
   flutter_riverpod: ^2.3.6
-  intl: ^0.18.1
+  intl: ^0.18.0
   dropdown_search: ^5.0.6
-  sleek_circular_slider: ^2.0.1
   rive: ^0.7.16
   permission_handler: ^10.3.0
   geolocator: ^9.0.2
+  flutter_local_notifications: ^14.1.1
+  hive_flutter: ^1.1.0
+  hive_generator: ^2.0.0
+  connectivity_plus: ^4.0.1
+  flutter_qiblah: ^2.2.0
+  flutter_svg: ^2.0.7
+  quiver: ^3.2.1
+  awesome_notifications: ^0.6.19
+  easy_localization: ^3.0.2
+
 
 dev_dependencies:
   flutter_test:
@@ -37,5 +45,7 @@ flutter:
   uses-material-design: true
 
   assets: 
-      - assets/
-
+     - assets/
+     - assets/svg/
+     - assets/lang/
+     - assets/images/

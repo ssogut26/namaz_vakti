@@ -1,12 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'prayer_times.g.dart';
 
 @JsonSerializable()
+@HiveType(typeId: 0)
 
 /// General prayer times model
-class PrayerTimesModel extends Equatable {
+final class PrayerTimesModel extends Equatable {
   /// Define prayer times elements
   const PrayerTimesModel({
     this.place,
@@ -21,9 +23,11 @@ class PrayerTimesModel extends Equatable {
   Map<String, dynamic> toJson() => _$PrayerTimesModelToJson(this);
 
   /// Prayer times place
+  @HiveField(0)
   final Place? place;
 
   /// Prayer times
+  @HiveField(1)
   final Map<String, List<String>>? times;
 
   /// Generate copy with method
@@ -40,9 +44,10 @@ class PrayerTimesModel extends Equatable {
 }
 
 @JsonSerializable()
+@HiveType(typeId: 1)
 
 /// Get place details
-class Place extends Equatable {
+final class Place extends Equatable {
   /// Define place elements
   const Place({
     this.country,
@@ -57,19 +62,25 @@ class Place extends Equatable {
   factory Place.fromJson(Map<String, dynamic> json) => _$PlaceFromJson(json);
 
   /// Place Country
+  @HiveField(0)
   final String? country;
 
   /// Place Country Code
+  @HiveField(1)
   final String? countryCode;
 
   /// Place City
+  @HiveField(2)
   final String? city;
 
   /// Place Region
+  @HiveField(3)
   final String? region;
+  @HiveField(4)
   final double? latitude;
 
   /// Place Longitude
+  @HiveField(5)
   final double? longitude;
 
   /// Generate copy with method
