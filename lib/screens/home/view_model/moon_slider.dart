@@ -32,7 +32,7 @@ class _MoonSliderState extends ConsumerState<MoonSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
+    final prayerTimes = ref.read(prayerTimesProvider.notifier).setPrayerTimes;
     final maghrib = timeToMinutes(prayerTimes?[0][4] ?? ''); // Maghrib
     final nextDaySunrise = timeToMinutes(
       prayerTimes?[1][1] ?? '',

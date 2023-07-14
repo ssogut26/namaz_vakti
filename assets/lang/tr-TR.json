@@ -23,6 +23,7 @@
       "isha": "Yatsı"
     },
     "locationSelection":{
+      "empty": "Aradığınız yer bulunamadı.",
       "selectLocation": "Konum Seçiniz",
       "getPrayerTimes": "Namaz vakitlerini al",
       "country": "Ülke",

@@ -21,6 +21,7 @@ abstract class  LocaleKeys {
   static const prayerTimes_isha = 'prayerTimes.isha';
   static const prayerTimes_prayerTime = 'prayerTimes.prayerTime';
   static const prayerTimes = 'prayerTimes';
+  static const locationSelection_empty = 'locationSelection.empty';
   static const locationSelection_selectLocation = 'locationSelection.selectLocation';
   static const locationSelection_getPrayerTimes = 'locationSelection.getPrayerTimes';
   static const locationSelection_country = 'locationSelection.country';

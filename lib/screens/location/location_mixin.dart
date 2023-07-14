@@ -13,33 +13,36 @@ mixin LocationRequirementsMixin on ConsumerState<LocationRequirements> {
   @override
   WidgetRef get ref;
   SharedPreferences? prefs;
-  late final LocationNotifier locationValues =
-      ref.read(locationProvider.notifier);
+  late final LocationNotifier locationValues;
+
+  @override
+  void initState() {
+    locationValues = ref.read(locationProvider.notifier);
+    super.initState();
+  }
 
   void updateCountry(String? value) {
-    if (mounted) {
-      setState(() {
-        locationValues.changeCountry(value);
-      });
-    }
+    setState(() {
+      locationValues.changeCountry(value);
+    });
   }
 
   void updateCity(String? value) {
-    if (mounted) {
-      setState(() {
-        locationValues.changeCity(
-          value,
-        );
-      });
-    }
+    print(value);
+
+    setState(() {
+      locationValues.changeCity(
+        value,
+      );
+    });
   }
 
   void updateDistrict(String? value) {
-    if (mounted) {
-      setState(() {
-        locationValues.changeDistrict(value);
-      });
-    }
+    print(value);
+
+    setState(() {
+      locationValues.changeDistrict(value);
+    });
   }
 }
 
@@ -48,8 +51,8 @@ mixin LocationMixin on ConsumerState<LocationSelectionScreen> {
   WidgetRef get ref;
   late final LocationNotifier locationValues =
       ref.read(locationProvider.notifier);
-
   Future<void> getPrayerTimesButton() async {
+    print(locationValues.state.district);
     locationValues.state.district == null || locationValues.state.district == ''
         ? await showDialog<void>(
             context: context,
@@ -58,10 +61,16 @@ mixin LocationMixin on ConsumerState<LocationSelectionScreen> {
               content: Text(LocaleKeys.locationSelection_tryAgain.locale),
             ),
           )
-        : await Navigator.of(context).push(
+        : await Navigator.of(context)
+            .push(
             MaterialPageRoute<void>(
               builder: (context) => const HomeScreen(),
             ),
-          );
+          )
+            .whenComplete(() async {
+            await locationValues.changeCountry('');
+            await locationValues.changeCity('');
+            await locationValues.changeDistrict('');
+          });
   }
 }

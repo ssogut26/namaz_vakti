@@ -3,7 +3,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/location/models/location_model.dart';
+import 'package:namaz_vakti/models/location_model.dart';
 import 'package:namaz_vakti/services/api.dart';
 import 'package:namaz_vakti/services/api_provider.dart';
 import 'package:namaz_vakti/services/connection_service.dart';
@@ -25,8 +25,10 @@ class LocationNotifier extends StateNotifier<LocationModel> {
 
   Future<void> changeCity(String? value) async {
     final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('city'));
     await prefs.remove('city');
     await prefs.setString('city', value ?? '');
+    print(prefs.getString('city'));
     state = state.copyWith(city: value ?? '', district: '');
   }
 
@@ -46,7 +48,7 @@ final locationProvider = StateNotifierProvider(
 );
 
 /// This provider using for the pullign the countries from the API.
-final countrySelectionProvider = FutureProvider(
+final countrySelectionProvider = FutureProvider.autoDispose(
   (ref) async {
     final apiService = ref.read(apiProvider);
     final countries = await apiService.getCountries();
@@ -57,7 +59,7 @@ final countrySelectionProvider = FutureProvider(
 /// This provider using for the pullign the city from the API. For
 /// working properly, you need to pass the country name as a parameter.
 final citySelectionProvider =
-    FutureProvider.family((ref, String? country) async {
+    FutureProvider.family.autoDispose((ref, String? country) async {
   final apiService = ref.read(apiProvider);
 
   final cities = await apiService.getCities(country ?? '');
@@ -93,6 +95,9 @@ final getPrayerTimesWithSelection =
     final co = prefs.getString('country');
     final ci = prefs.getString('city');
     final di = prefs.getString('district');
+    print(
+      'country: $co, city: $ci, district: $di, c = $country, c = $city, c = $district',
+    );
     if (connection == ConnectivityStatus.isConnected) {
       final prayerTimes = await apiService.getPrayerTimes(
         co ?? country ?? '',
@@ -117,6 +122,7 @@ final getPrayerTimesWithLocation =
   final prefs = await SharedPreferences.getInstance();
   final lat = prefs.getString('latitude');
   final lon = prefs.getString('longitude');
+  print('latitude: $lat, longitude: $lon');
   final prayerTimes = await apiService.getPrayerTimesByLocation(
     latitude: lat ?? locator?.latitude.toString() ?? '',
     longitude: lon ?? locator?.longitude.toString() ?? '',
@@ -134,6 +140,7 @@ class LocatorNotifier extends StateNotifier<bool> {
   Future<bool> changeLocationStatus({bool? value = false}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLocationEnabled', value ?? false);
+
     return isLocationEnabled = value ?? false;
   }
 

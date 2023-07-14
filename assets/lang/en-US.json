@@ -24,6 +24,7 @@
   "prayerTime": "It is time for the prayer"
   },
   "locationSelection":{
+    "empty": "We couldn't find any result.",
     "selectLocation": "Select Location",
     "getPrayerTimes": "Get Prayer Times",
     "country": "Country",

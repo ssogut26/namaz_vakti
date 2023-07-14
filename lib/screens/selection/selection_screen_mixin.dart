@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 mixin SelectionScreenMixin on ConsumerState<SelectionScreenView> {
   Future<void> navigateToLocationSelection() async {
+    await ref.read(locatorProvider.notifier).changeLocationStatus();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (context) => const LocationSelectionScreen(),

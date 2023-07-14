@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
-import 'package:namaz_vakti/screens/home/view/home_screen.dart';
+import 'package:namaz_vakti/utils/loading.dart';
 
 final qiblaProvider = StreamProvider<QiblahDirection>((ref) {
   FlutterQiblah.requestPermissions();

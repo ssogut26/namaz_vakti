@@ -68,11 +68,11 @@ final currentTimeProvider =
 
 final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
   PrayerTimesNotifier(
-    this._prayerTimes,
-  ) : super(_prayerTimes ?? []);
+    this.prayerTimes,
+  ) : super(prayerTimes ?? []);
 
-  List<List<String>>? _prayerTimes;
-  List<List<String>>? get prayerTimes => _prayerTimes;
+  List<List<String>>? prayerTimes;
+  List<List<String>>? get setPrayerTimes => prayerTimes;
   PrayerTimesModel? _prayerTimesModel;
   PrayerTimesModel? get prayerTimesModel => _prayerTimesModel;
   final cachedPrayerTimes = Hive.box<PrayerTimesModel>('prayerTimesModel');
@@ -88,8 +88,8 @@ final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
     );
   }
 
-  set prayerTimes(List<List<String>>? prayerTimes) {
-    _prayerTimes = prayerTimes;
+  set setPrayerTimes(List<List<String>>? prayerTime) {
+    prayerTimes = prayerTime;
   }
 }
 

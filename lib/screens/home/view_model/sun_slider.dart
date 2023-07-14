@@ -36,7 +36,7 @@ class _SunSliderState extends ConsumerState<SunSlider> {
 
   @override
   Widget build(BuildContext context) {
-    final prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimes;
+    final prayerTimes = ref.read(prayerTimesProvider.notifier).setPrayerTimes;
     final sunrise = timeToMinutes(prayerTimes?[0][1] ?? ''); // sunrise
     final maghrib = timeToMinutes(prayerTimes?[0][4] ?? ''); // Maghrib
     final time = ref.watch(currentTimeProvider.notifier).currentTime;

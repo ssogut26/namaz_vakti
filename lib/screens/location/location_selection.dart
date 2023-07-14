@@ -7,7 +7,7 @@ import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/countries.dart';
 import 'package:namaz_vakti/screens/location/location_mixin.dart';
-import 'package:namaz_vakti/screens/location/models/location_model.dart';
+import 'package:namaz_vakti/models/location_model.dart';
 import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
@@ -58,11 +58,13 @@ class AppElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        shape: const RoundedRectangleBorder(),
-        fixedSize: Size(
-          MediaQuery.of(context).size.width,
-          MediaQuery.of(context).size.height * 0.52,
+        backgroundColor: color ?? Theme.of(context).primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: color == null
+              ? const BorderRadius.all(
+                  Radius.circular(16),
+                )
+              : BorderRadius.zero,
         ),
       ),
       onPressed: onPressed,
@@ -127,6 +129,7 @@ class DistrictSelectionWidget extends ConsumerWidget {
     return DropdownSearch<String?>(
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
+          border: const OutlineInputBorder(),
           labelText: LocaleKeys.locationSelection_district.locale,
           hintText: LocaleKeys.locationSelection_selectDistrict.locale,
         ),
@@ -136,11 +139,26 @@ class DistrictSelectionWidget extends ConsumerWidget {
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             labelText: LocaleKeys.locationSelection_district.locale,
             hintText: LocaleKeys.locationSelection_selectDistrict.locale,
           ),
         ),
+        itemBuilder: (context, country, isSelected) {
+          return ListTile(
+            title: Text(country ?? ''),
+          );
+        },
         searchDelay: const Duration(milliseconds: 300),
+        emptyBuilder: (context, country) {
+          return ListTile(
+            title: Text(
+              LocaleKeys.locationSelection_empty.locale,
+              textAlign: TextAlign.center,
+            ),
+          );
+        },
         isFilterOnline: true,
       ),
       asyncItems: (String filter) async {
@@ -190,6 +208,7 @@ class CitySelectionWidget extends ConsumerWidget {
     return DropdownSearch<String?>(
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
+          border: const OutlineInputBorder(),
           labelText: LocaleKeys.locationSelection_city.locale,
           hintText: LocaleKeys.locationSelection_selectCity.locale,
         ),
@@ -199,10 +218,25 @@ class CitySelectionWidget extends ConsumerWidget {
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             labelText: LocaleKeys.locationSelection_city.locale,
             hintText: LocaleKeys.locationSelection_selectCity.locale,
           ),
         ),
+        itemBuilder: (context, country, isSelected) {
+          return ListTile(
+            title: Text(country ?? ''),
+          );
+        },
+        emptyBuilder: (context, country) {
+          return ListTile(
+            title: Text(
+              LocaleKeys.locationSelection_empty.locale,
+              textAlign: TextAlign.center,
+            ),
+          );
+        },
         searchDelay: const Duration(milliseconds: 300),
         isFilterOnline: true,
       ),
@@ -252,6 +286,7 @@ class CountrySelectionWidget extends ConsumerWidget {
     return DropdownSearch<String?>(
       dropdownDecoratorProps: DropDownDecoratorProps(
         dropdownSearchDecoration: InputDecoration(
+          border: const OutlineInputBorder(),
           labelText: LocaleKeys.locationSelection_country.locale,
           hintText: LocaleKeys.locationSelection_selectCountry.locale,
         ),
@@ -261,10 +296,25 @@ class CountrySelectionWidget extends ConsumerWidget {
         showSearchBox: true,
         searchFieldProps: TextFieldProps(
           decoration: InputDecoration(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             labelText: LocaleKeys.locationSelection_country.locale,
             hintText: LocaleKeys.locationSelection_selectCountry.locale,
           ),
         ),
+        itemBuilder: (context, country, isSelected) {
+          return ListTile(
+            title: Text(country ?? ''),
+          );
+        },
+        emptyBuilder: (context, country) {
+          return ListTile(
+            title: Text(
+              LocaleKeys.locationSelection_empty.locale,
+              textAlign: TextAlign.center,
+            ),
+          );
+        },
         searchDelay: const Duration(milliseconds: 300),
         isFilterOnline: true,
       ),

@@ -26,18 +26,25 @@ class _SelectionScreenViewState extends ConsumerState<SelectionScreenView>
             children: [
               Align(
                 alignment: Alignment.bottomCenter,
-                child: AppElevatedButton(
-                  color: const Color(0xff374B4A),
-                  onPressed: navigateToLocationSelection,
-                  text: LocaleKeys.selectionScreen_enterManually.locale,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.50,
+                  width: MediaQuery.of(context).size.width,
+                  child: AppElevatedButton(
+                    color: const Color(0xff374B4A),
+                    onPressed: navigateToLocationSelection,
+                    text: LocaleKeys.selectionScreen_enterManually.locale,
+                  ),
                 ),
               ),
               ClipPath(
                 clipper: BottomWaveClipper(),
-                child: AppElevatedButton(
-                  color: const Color(0xff88D9E6),
-                  onPressed: getPrayerTimesWithLocationFunction,
-                  text: LocaleKeys.selectionScreen_useMyLocation.locale,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.55,
+                  child: AppElevatedButton(
+                    color: const Color(0xff88D9E6),
+                    onPressed: getPrayerTimesWithLocationFunction,
+                    text: LocaleKeys.selectionScreen_useMyLocation.locale,
+                  ),
                 ),
               ),
               Align(
@@ -64,40 +71,6 @@ class _SelectionScreenViewState extends ConsumerState<SelectionScreenView>
   }
 }
 
-// class WaveClipper extends CustomClipper<Path> {
-//   @override
-//   Path getClip(Size size) {
-//     final path = Path();
-//     path.lineTo(0, size.height * 0.75);
-
-//     final firstControlPoint = Offset(size.width / 4, size.height);
-//     final firstEndPoint = Offset(size.width / 2.25, size.height * 0.85);
-//     path.quadraticBezierTo(
-//       firstControlPoint.dx,
-//       firstControlPoint.dy,
-//       firstEndPoint.dx,
-//       firstEndPoint.dy,
-//     );
-
-//     final secondControlPoint =
-//         Offset(size.width - (size.width / 3.25), size.height * 0.65);
-//     final secondEndPoint = Offset(size.width, size.height * 0.75);
-//     path.quadraticBezierTo(
-//       secondControlPoint.dx,
-//       secondControlPoint.dy,
-//       secondEndPoint.dx,
-//       secondEndPoint.dy,
-//     );
-
-//     path.lineTo(size.width, 0);
-//     path.close();
-
-//     return path;
-//   }
-
-//   @override
-//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-// }
 
 class BottomWaveClipper extends CustomClipper<Path> {
   @override
@@ -117,35 +90,6 @@ class BottomWaveClipper extends CustomClipper<Path> {
       size.height - 40,
     );
     path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) {
-    return false;
-  }
-}
-
-class TopWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.moveTo(0, size.height);
-    path.lineTo(0, size.height - 40);
-    path.quadraticBezierTo(
-      size.width / 4,
-      size.height - 80,
-      size.width / 2,
-      size.height - 40,
-    );
-    path.quadraticBezierTo(
-      size.width - (size.width / 4),
-      size.height,
-      size.width,
-      size.height - 40,
-    );
-    path.lineTo(size.width, size.height);
     path.close();
     return path;
   }
