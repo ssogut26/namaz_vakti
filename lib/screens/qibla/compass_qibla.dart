@@ -21,7 +21,22 @@ class QiblaCompassView extends ConsumerStatefulWidget {
       QiblaCompassViewState();
 }
 
-class QiblaCompassViewState extends ConsumerState<QiblaCompassView> {
+class QiblaCompassViewState extends ConsumerState<QiblaCompassView>
+    with TickerProviderStateMixin {
+  Animation<double>? animation;
+  AnimationController? _animationController;
+  double begin = 0;
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    // ignore: prefer_int_literals
+    animation = Tween(begin: 0.0, end: 0.0).animate(_animationController!);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final qiblaDirection = ref.watch(qiblaProvider);
@@ -31,35 +46,42 @@ class QiblaCompassViewState extends ConsumerState<QiblaCompassView> {
       ),
       body: qiblaDirection.when(
         data: (data) {
+          // print()
           final compassSvg = SvgPicture.asset(
             'assets/svg/compass.svg',
-            height: 300,
-            width: 300,
+            width: MediaQuery.of(context).size.width * 0.9,
           );
-
           final needleSvg = SvgPicture.asset(
             'assets/svg/needle.svg',
             height: 300,
-            width: 300,
           );
+
           return SizedBox(
             height: MediaQuery.of(context).size.height * 0.8,
             width: MediaQuery.of(context).size.width,
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
-                Transform.rotate(
-                  angle: data.direction * (pi / 180) * -1,
+                AnimatedRotation(
+                  turns: data.direction * pi / 180 - 1,
+                  duration: const Duration(seconds: 1),
                   child: compassSvg,
                 ),
-                Transform.rotate(
-                  angle: data.qiblah * (pi / 180) * -1,
+                AnimatedRotation(
+                  turns: data.qiblah * pi / 180,
+                  duration: const Duration(seconds: 1),
                   child: needleSvg,
                 ),
                 Positioned(
                   bottom: 8,
-                  child: Text('${data.offset.toStringAsFixed(3)}°'),
-                )
+                  child: Text(
+                    '${data.direction.toStringAsFixed(2)}°',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
               ],
             ),
           );

@@ -85,7 +85,13 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
       child: Column(
         children: [
           Text(
-            LocaleKeys.countDown_nextPrayer.localeWithValue(nextPrayerTime),
+            nextPrayerTime == 'Fajr'
+                ? LocaleKeys.countDown_toFajr.localeWithValue(nextPrayerTime)
+                : nextPrayerTime == 'Sunrise'
+                    ? LocaleKeys.countDown_toSunrise
+                        .localeWithValue(nextPrayerTime)
+                    : LocaleKeys.countDown_nextPrayer
+                        .localeWithValue(nextPrayerTime),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           Align(

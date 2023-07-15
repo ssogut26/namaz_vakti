@@ -75,8 +75,8 @@ class NotificationService implements INotificationService {
       styleInformation: InboxStyleInformation(
         [
           for (var i = 0; i < prayerTimes.length; i++)
-            for (var j = 0; j < AppConstants.timeNames.length; j++)
-              if (i == j) '${AppConstants.timeNames[j]}: ${prayerTimes[i]}'
+            for (var j = 0; j < AppConstants().timeNames.length; j++)
+              if (i == j) '${AppConstants().timeNames[j]}: ${prayerTimes[i]}'
         ],
       ),
     );

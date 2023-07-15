@@ -9,6 +9,8 @@ abstract class  LocaleKeys {
   static const drawer_reportProblem = 'drawer.reportProblem';
   static const drawer = 'drawer';
   static const countDown_nextPrayer = 'countDown.nextPrayer';
+  static const countDown_toFajr = 'countDown.toFajr';
+  static const countDown_toSunrise = 'countDown.toSunrise';
   static const countDown_hours = 'countDown.hours';
   static const countDown_minutes = 'countDown.minutes';
   static const countDown_seconds = 'countDown.seconds';
