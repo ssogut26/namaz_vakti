@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/screens/location/location_selection.dart';
-import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
+import 'package:namaz_vakti/providers/location_providers.dart';
 import 'package:namaz_vakti/screens/selection/selection_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 

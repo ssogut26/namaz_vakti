@@ -8,20 +8,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:namaz_vakti/constants/constants.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
+import 'package:namaz_vakti/mixins/mixin_index.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
-import 'package:namaz_vakti/screens/home/mixins/home_mixin.dart';
-import 'package:namaz_vakti/screens/home/view/prayer_times_view.dart';
-import 'package:namaz_vakti/screens/home/view_model/drawer.dart';
-import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
+import 'package:namaz_vakti/providers/location_providers.dart';
+import 'package:namaz_vakti/screens/home/view_model/index.dart';
 import 'package:namaz_vakti/screens/no_conneciton_screen.dart';
 import 'package:namaz_vakti/services/connection_service.dart';
 import 'package:namaz_vakti/utils/loading.dart';
 import 'package:namaz_vakti/utils/time_utils.dart';
 
 // get part
-part '../providers/home_providers.dart';
+part '../../../providers/home_providers.dart';
+part 'prayer_times.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -32,11 +33,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> with HomeScreenMixin {
   @override
   Widget build(BuildContext context) {
-    final connectivity = ref.watch(connectivityProvider);
-    final prayerTimesModel = ref
-        .watch(prayerTimesProvider.notifier)
-        .cachedPrayerTimes
-        .get('prayerTimes');
     final format = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final prayerTimes = (isLocation ?? true)
         ? ref.watch(
@@ -49,7 +45,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with HomeScreenMixin {
               format,
             ),
           );
-
+    final connectivity = ref.watch(connectivityProvider);
+    final prayerTimesModel = ref
+        .watch(prayerTimesProvider.notifier)
+        .cachedPrayerTimes
+        .get('prayerTimes');
     if (connectivity == ConnectivityStatus.isDisconnected &&
         prayerTimesModel == null) {
       return const NoConnectionScreenView();
@@ -84,32 +84,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with HomeScreenMixin {
                       child: Text(LocaleKeys.error_wentWrong.locale),
                     ),
                     data: (PrayerTimesModel? prayerModel) {
-                      if (prayerModel?.times?.isEmpty ?? true) {
-                        return Center(
-                          child: Text(
-                            LocaleKeys.error_locationNotFound.locale,
-                          ),
-                        );
-                      }
-
-                      ref.read(prayerTimesProvider.notifier).setPrayerTimes =
-                          prayerModel!.times!.values.toList();
-                      ref.read(prayerTimesProvider.notifier)._prayerTimesModel =
-                          prayerModel;
-                      ref
-                          .read(prayerTimesProvider.notifier)
-                          .updatePrayerTimesModel();
-
-                      return const PrayerTimesView();
+                      savePrayerTimes(prayerModel);
+                      return prayerTimesView(prayerModel);
                     },
                   )
                 : Builder(
                     builder: (context) {
-                      final prayerModel = cacheHive.get('prayerTimes');
-                      ref.read(prayerTimesProvider.notifier)
-                        ..setPrayerTimes = prayerModel?.times?.values.toList()
-                        .._prayerTimesModel = prayerModel
-                        ..updatePrayerTimesModel();
+                      fetchPrayerTimesFromLocal();
                       return const PrayerTimesView();
                     },
                   ),
@@ -120,8 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with HomeScreenMixin {
   AppBar _homeAppBar(
     BuildContext context,
   ) {
-    final prayerTimes =
-        ref.read(prayerTimesProvider.notifier)._prayerTimesModel;
+    final prayerTimes = ref.read(prayerTimesProvider.notifier).prayerTimesModel;
 
     return AppBar(
       automaticallyImplyLeading: false,

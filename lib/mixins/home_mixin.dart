@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
 import 'package:namaz_vakti/services/notification.dart';
@@ -38,7 +40,33 @@ mixin HomeScreenMixin on ConsumerState<HomeScreen> {
             [],
       ),
     );
-
     super.initState();
+  }
+
+  void savePrayerTimes(PrayerTimesModel? prayerModel) {
+    ref.read(prayerTimesProvider.notifier).setPrayerTimes =
+        prayerModel!.times!.values.toList();
+    ref.read(prayerTimesProvider.notifier).prayerTimesModel = prayerModel;
+    ref.read(prayerTimesProvider.notifier).updatePrayerTimesModel();
+  }
+
+  Widget prayerTimesView(PrayerTimesModel? prayerModel) {
+    if (prayerModel?.times?.isEmpty ?? true) {
+      return Center(
+        child: Text(
+          LocaleKeys.error_locationNotFound.locale,
+        ),
+      );
+    } else {
+      return const PrayerTimesView();
+    }
+  }
+
+  void fetchPrayerTimesFromLocal() {
+    final prayerModel = cacheHive.get('prayerTimes');
+    ref.read(prayerTimesProvider.notifier)
+      ..setPrayerTimes = prayerModel?.times?.values.toList()
+      ..prayerTimesModel = prayerModel
+      ..updatePrayerTimesModel();
   }
 }

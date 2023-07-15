@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:namaz_vakti/constants/constants.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
+import 'package:namaz_vakti/mixins/selection_screen_mixin.dart';
 import 'package:namaz_vakti/screens/location/location_selection.dart';
-import 'package:namaz_vakti/screens/selection/selection_screen_mixin.dart';
 
 class SelectionScreenView extends ConsumerStatefulWidget {
   const SelectionScreenView({super.key});
@@ -24,43 +25,36 @@ class _SelectionScreenViewState extends ConsumerState<SelectionScreenView>
           width: MediaQuery.of(context).size.width,
           child: Stack(
             children: [
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.50,
-                  width: MediaQuery.of(context).size.width,
-                  child: AppElevatedButton(
-                    color: const Color(0xff374B4A),
-                    onPressed: navigateToLocationSelection,
-                    text: LocaleKeys.selectionScreen_enterManually.locale,
-                  ),
-                ),
+              _SelectLocation(
+                navigateToLocationSelection,
               ),
-              ClipPath(
-                clipper: BottomWaveClipper(),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.55,
-                  child: AppElevatedButton(
-                    color: const Color(0xff88D9E6),
-                    onPressed: getPrayerTimesWithLocationFunction,
-                    text: LocaleKeys.selectionScreen_useMyLocation.locale,
-                  ),
-                ),
+              _UseLocation(
+                getPrayerTimesWithLocationFunction,
               ),
               Align(
                 alignment: Alignment.topRight,
-                child: IconButton(
-                  onPressed: () async {
-                    if (context.locale == const Locale('en', 'US')) {
-                      await context.setLocale(const Locale('tr', 'TR'));
-                    } else {
-                      await context.setLocale(const Locale('en', 'US'));
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.language,
-                    color: Colors.black,
-                  ),
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        if (context.locale == const Locale('en', 'US')) {
+                          await context.setLocale(const Locale('tr', 'TR'));
+                        } else {
+                          await context.setLocale(const Locale('en', 'US'));
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.language,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      context.locale.languageCode,
+                      style: const TextStyle(
+                        color: Colors.black,
+                      ),
+                    )
+                  ],
                 ),
               ),
             ],
@@ -71,6 +65,52 @@ class _SelectionScreenViewState extends ConsumerState<SelectionScreenView>
   }
 }
 
+class _UseLocation extends StatelessWidget {
+  const _UseLocation(
+    this.getPrayerTimesWithLocationFunction,
+  );
+
+  final void Function() getPrayerTimesWithLocationFunction;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: BottomWaveClipper(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.55,
+        child: AppElevatedButton(
+          color: AppConstants.beachBlue,
+          onPressed: getPrayerTimesWithLocationFunction,
+          text: LocaleKeys.selectionScreen_useMyLocation.locale,
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectLocation extends StatelessWidget {
+  const _SelectLocation(
+    this.navigateToLocationSelection,
+  );
+
+  final void Function() navigateToLocationSelection;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.50,
+        width: MediaQuery.of(context).size.width,
+        child: AppElevatedButton(
+          color: AppConstants.stoneDark,
+          onPressed: navigateToLocationSelection,
+          text: LocaleKeys.selectionScreen_enterManually.locale,
+        ),
+      ),
+    );
+  }
+}
 
 class BottomWaveClipper extends CustomClipper<Path> {
   @override

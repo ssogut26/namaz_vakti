@@ -6,7 +6,7 @@ import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/prayer_times.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/qibla/compass_qibla.dart';
+import 'package:namaz_vakti/screens/qibla/view/compass_qibla.dart';
 import 'package:namaz_vakti/screens/selection/selection_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +18,7 @@ class HomeDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appBarPrayerTimes =
-        ref.watch(prayerTimesProvider.notifier).prayerTimesModel;
+        ref.watch(prayerTimesProvider.notifier).setPrayerTimesModel;
     final prayerTimesModel = ref
         .watch(prayerTimesProvider.notifier)
         .cachedPrayerTimes
@@ -26,6 +26,7 @@ class HomeDrawer extends ConsumerWidget {
     final date = DateFormat.MMMd()
         .format(DateTime.parse(appBarPrayerTimes?.times?.keys.first ?? ''));
     return Drawer(
+      width: MediaQuery.of(context).size.width * 0.8,
       child: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Column(

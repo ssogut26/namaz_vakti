@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/models/countries.dart';
-import 'package:namaz_vakti/screens/location/location_mixin.dart';
+import 'package:namaz_vakti/mixins/location_mixin.dart';
 import 'package:namaz_vakti/models/location_model.dart';
-import 'package:namaz_vakti/screens/location/providers/location_providers.dart';
+import 'package:namaz_vakti/providers/location_providers.dart';
 
 class LocationSelectionScreen extends ConsumerStatefulWidget {
   const LocationSelectionScreen({super.key});

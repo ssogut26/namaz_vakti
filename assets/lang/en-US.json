@@ -57,7 +57,7 @@
     "title": "No Internet Connection",
     "message": "Please check your internet connection and try again."
   },
-  "appName": "Prayer Times App",
+  "appName": "Prayer Times",
   "appChannel": "Prayer times",
   "notificationTitle": "Prayer times",
   "appDescription": "Shows the prayer times in notification bar."

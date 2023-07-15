@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:namaz_vakti/constants/constants.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
@@ -136,7 +137,7 @@ final class Countdown extends AnimatedWidget {
           children: [
             Card(
               elevation: 3,
-              color: const Color(0xFF8ACDEA),
+              color: AppConstants.skyBlue,
               child: Column(
                 children: [
                   Padding(
@@ -167,7 +168,7 @@ final class Countdown extends AnimatedWidget {
         Column(
           children: [
             Card(
-              color: const Color(0xFFF38D68),
+              color: AppConstants.sweetOrange,
               elevation: 3,
               child: Column(
                 children: [

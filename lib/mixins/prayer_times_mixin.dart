@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/home/view/prayer_times_view.dart';
 
 mixin PrayerTimesViewMixin on ConsumerState<PrayerTimesView> {
   List<List<String>>? prayerTimes;

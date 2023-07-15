@@ -1,4 +1,4 @@
-part of '../view/home_screen.dart';
+part of '../screens/home/view/home_screen.dart';
 
 final homeScreenProvider = Provider<HomeScreen>((ref) => const HomeScreen());
 
@@ -73,18 +73,18 @@ final class PrayerTimesNotifier extends StateNotifier<List<List<String>>> {
 
   List<List<String>>? prayerTimes;
   List<List<String>>? get setPrayerTimes => prayerTimes;
-  PrayerTimesModel? _prayerTimesModel;
-  PrayerTimesModel? get prayerTimesModel => _prayerTimesModel;
+  PrayerTimesModel? prayerTimesModel;
+  PrayerTimesModel? get setPrayerTimesModel => prayerTimesModel;
   final cachedPrayerTimes = Hive.box<PrayerTimesModel>('prayerTimesModel');
 
-  set prayerTimesModel(PrayerTimesModel? prayerTimesModel) {
-    _prayerTimesModel = prayerTimesModel;
+  set setPrayerTimesModel(PrayerTimesModel? prayerTimeModel) {
+    prayerTimesModel = prayerTimeModel;
   }
 
   Future<void> updatePrayerTimesModel() async {
     await cachedPrayerTimes.put(
       'prayerTimes',
-      _prayerTimesModel ?? const PrayerTimesModel(),
+      prayerTimesModel ?? const PrayerTimesModel(),
     );
   }
 
