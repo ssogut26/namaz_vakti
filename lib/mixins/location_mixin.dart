@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:namaz_vakti/extensions/extensions.dart';
+import 'package:namaz_vakti/features/screens/home/view/home_screen.dart';
+import 'package:namaz_vakti/features/screens/location/location_selection.dart';
 import 'package:namaz_vakti/generated/locale_keys.g.dart';
-import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/location/location_selection.dart';
-import 'package:namaz_vakti/providers/location_providers.dart';
+import 'package:namaz_vakti/product/providers/location_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 mixin LocationRequirementsMixin on ConsumerState<LocationRequirements> {

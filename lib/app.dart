@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:namaz_vakti/constants/constants.dart';
-import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/selection/selection_screen.dart';
+import 'package:namaz_vakti/features/screens/home/view/home_screen.dart';
+import 'package:namaz_vakti/features/screens/selection/selection_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NamazVaktiApp extends StatelessWidget {

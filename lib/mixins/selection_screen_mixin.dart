@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:namaz_vakti/screens/home/view/home_screen.dart';
-import 'package:namaz_vakti/screens/location/location_selection.dart';
-import 'package:namaz_vakti/providers/location_providers.dart';
-import 'package:namaz_vakti/screens/selection/selection_screen.dart';
+import 'package:namaz_vakti/features/screens/home/view/home_screen.dart';
+import 'package:namaz_vakti/features/screens/location/location_selection.dart';
+import 'package:namaz_vakti/features/screens/selection/selection_screen.dart';
+import 'package:namaz_vakti/product/providers/location_providers.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 mixin SelectionScreenMixin on ConsumerState<SelectionScreenView> {
