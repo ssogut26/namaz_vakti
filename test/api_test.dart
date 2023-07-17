@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:namaz_vakti/services/api.dart';
+import 'package:namaz_vakti/product/services/api.dart';
 
 void main() {
   test('Countries Test', () async {
@@ -21,6 +21,15 @@ void main() {
   test('Prayer Times Test', () async {
     final prayerTimes = await ApiService.instance
         .getPrayerTimes('Turkey', 'Eskişehir', 'Eskişehir', '2023-06-06');
+    expect(prayerTimes, isNotNull);
+  });
+
+  test('PrayerTimesWithLocation Test', () async {
+    final prayerTimes = await ApiService.instance.getPrayerTimesByLocation(
+      latitude: '39.766219',
+      longitude: '30.526714',
+      date: '2023-06-06',
+    );
     expect(prayerTimes, isNotNull);
   });
 }

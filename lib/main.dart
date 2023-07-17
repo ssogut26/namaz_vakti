@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:namaz_vakti/app.dart';
-import 'package:namaz_vakti/models/prayer_times.dart';
+import 'package:namaz_vakti/features/models/prayer_times.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
