@@ -10,8 +10,8 @@
     },
     "countDown": {
       "nextPrayer": "{} Namazına Kalan Süre",
-      "toFajr": "{} 'a kalan süre",
-      "toSunrise": "{} 'e kalan süre",
+      "toFajr": "{} vaktine kalan süre",
+      "toSunrise": "{} 'in doğmasına kalan süre",
       "hours": "Saat",
       "minutes": "Dakika",
       "seconds": "Saniye"

@@ -86,9 +86,9 @@ class _NextPrayerTimeCardState extends ConsumerState<NextPrayerTimeCard>
       child: Column(
         children: [
           Text(
-            nextPrayerTime == 'Fajr'
+            nextPrayerTime == LocaleKeys.prayerTimes_fajr.locale
                 ? LocaleKeys.countDown_toFajr.localeWithValue(nextPrayerTime)
-                : nextPrayerTime == 'Sunrise'
+                : nextPrayerTime == LocaleKeys.prayerTimes_sunrise.locale
                     ? LocaleKeys.countDown_toSunrise
                         .localeWithValue(nextPrayerTime)
                     : LocaleKeys.countDown_nextPrayer
