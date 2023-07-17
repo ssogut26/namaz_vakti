@@ -10,9 +10,9 @@
   },
   "countDown": {
     "nextPrayer": "{} in",
-    "toFajr": "{} 'in",
-    "toSunrise": "{} 'in",
-    "hours": "Hours,",
+    "toFajr": "{} in",
+    "toSunrise": "{} in",
+    "hours": "Hours",
     "minutes": "Minutes",
     "seconds": "Seconds"
   },
